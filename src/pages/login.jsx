@@ -4,7 +4,7 @@ function Login() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="title">StrayCare</h1>
+        <h1 className="title">StrayCare - Street Animal Tracking App</h1>
         <p className="subtitle">Admin & User Login</p>
 
         <form className="login-form">
