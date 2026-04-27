@@ -1,0 +1,79 @@
+.users-container {
+  background: #F1F5F9;
+  min-height: 100vh;
+  padding: 40px;
+  box-sizing: border-box;
+  border-radius: 8px;
+}
+
+/* Table styling */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.users-table th,
+.users-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.users-table th {
+  background: #FFF9E6;
+  color: #412828;
+  font-weight: bold;
+}
+
+.users-table tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.users-table tr:hover {
+  background: #fdf2d9;
+  transition: background 0.2s ease-in-out;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  display: inline-block;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-verified {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Action buttons */
+button {
+  background: #f5a623;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease-in-out;
+}
+
+button:hover {
+  background: #d48806;
+}
