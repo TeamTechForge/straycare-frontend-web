@@ -1,7 +1,8 @@
 {
   "projects": {
     "default": "straycare-43a56",
-    "default    ": "straycareweb"
+    "default    ": "straycareweb",
+    "production": "straycareweb"
   },
   "targets": {},
   "etags": {}
