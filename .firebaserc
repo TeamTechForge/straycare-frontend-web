@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "straycare-43a56",
+    
     "default    ": "straycareweb",
     "production": "straycareweb"
   },
