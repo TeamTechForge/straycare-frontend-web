@@ -1,19 +1,28 @@
-/* src/App.css */
-body {
+
+html, body {
   margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
   font-family: Arial, sans-serif;
-  background-color: #f9fafb;
+  background-color: #f9fafb; 
   color: #333;
 }
 
+/* Main container fills the screen */
 .home-container {
   display: flex;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 .main-content {
   flex: 1;
-  padding: 20px;
-  background-color: #fff;
+  margin: 0;
+  padding: 0;
+  background-color: #fff; /* page background */
 }
+
+
 

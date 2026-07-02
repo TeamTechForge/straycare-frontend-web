@@ -7,10 +7,16 @@ import UserNavTabs from "../components/UserNavTabs";
 import "./VetsNgoUsers.css";
 
 export default function VetsNgoUsers() {
+  // Stores Vet and NGO user list fetched from backend
   const [users, setUsers] = useState([]);
+
+  // Used to navigate to other pages (ex: documents page)
   const navigate = useNavigate();
+
+  // Used to detect route changes and re-fetch data
   const location = useLocation();
 
+  // Fetch Vet/NGO users from API
   const fetchUsers = async () => {
     try {
       const res = await api.get("/api/users/vets-ngos");
@@ -20,12 +26,12 @@ export default function VetsNgoUsers() {
     }
   };
 
-  // Initial fetch
+  // Fetch users once when page loads
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Re-fetch 
+  // Re-fetch users when navigation happens (to keep updated data)
   useEffect(() => {
     fetchUsers();
   }, [location.key]);
@@ -38,6 +44,7 @@ export default function VetsNgoUsers() {
           <Header title="User Management" />
           <UserNavTabs />
 
+          {/* Users Table */}
           <table className="users-table">
             <thead>
               <tr>
@@ -48,12 +55,15 @@ export default function VetsNgoUsers() {
                 <th>Actions</th>
               </tr>
             </thead>
+
             <tbody>
               {users.map(user => (
                 <tr key={user._id}>
                   <td>{user._id}</td>
                   <td>{user.name || user.fullName}</td>
                   <td>{user.role}</td>
+
+                  {/* Status badge changes color based on verification status */}
                   <td>
                     <span
                       className={`status-badge ${
@@ -67,6 +77,8 @@ export default function VetsNgoUsers() {
                       {user.status || "Pending"}
                     </span>
                   </td>
+
+                  {/* Navigate to user's documents page */}
                   <td>
                     <button onClick={() => navigate(`/users/${user._id}/documents`)}>
                       Check Documents
@@ -76,6 +88,7 @@ export default function VetsNgoUsers() {
               ))}
             </tbody>
           </table>
+
         </div>
       </main>
     </div>

@@ -1,8 +1,13 @@
-export default function Reports() {
-  return (
-    <div style={{ padding: "20px" }}>
-      <h2>Notifications Page</h2>
-      <p>This page is under construction.</p>
-    </div>
-  );
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+export default function Logout() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  }, []);
+
+  return null;
 }
