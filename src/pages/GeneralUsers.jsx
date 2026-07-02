@@ -6,57 +6,87 @@ import UserNavTabs from "../components/UserNavTabs";
 import "./GeneralUsers.css";
 
 export default function GeneralUsers() {
+  // Stores full list of filtered users from API (base dataset)
   const [allUsers, setAllUsers] = useState([]);
+
+  // Stores users currently displayed in the table (after filtering)
   const [users, setUsers] = useState([]);
+
+  // Stores filter state (currently only role filter)
   const [filters, setFilters] = useState({ role: "All" });
 
+  // Fetch users from backend API
   const fetchUsers = async () => {
     try {
       const res = await api.get("/api/users/all");
+
+      // Keep only relevant roles for this tab
       const generalTabUsers = res.data.filter(
         u => ["General User", "Rescuer", "Volunteer"].includes(u.role)
       );
+
+      // Save original dataset
       setAllUsers(generalTabUsers);
+
+      // Initialize displayed dataset
       setUsers(generalTabUsers);
     } catch (err) {
       console.error("Failed to fetch users:", err);
     }
   };
 
+  // Runs once when component mounts (page load)
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  // Reset filters and restore full dataset
   const handleReset = () => {
     setFilters({ role: "All" });
     setUsers(allUsers);
   };
 
+  // Apply selected filters to user list
   const handleApply = () => {
     let filtered = allUsers;
+
+    // Filter by role only if not "All"
     if (filters.role !== "All") {
       filtered = filtered.filter(u => u.role === filters.role);
     }
+
+    // Update displayed users
     setUsers(filtered);
   };
 
   return (
     <div className="home-container">
+      {/* Sidebar navigation */}
       <Sidebar />
+
       <main className="main-content">
         <div className="users-container">
+
+          {/* Page header */}
           <Header title="User Management" />
+
+          {/* Navigation tabs for user sections */}
           <UserNavTabs />
 
-          {/* Filter Box */}
+          {/* Filter section */}
           <div className="filter-box">
             <p className="filter-title">Filter Users</p>
+
             <div className="filter-row">
+
+              {/* Role dropdown filter */}
               <div className="filter-field">
                 <label>Role:</label>
                 <select
                   value={filters.role}
-                  onChange={(e) => setFilters({ ...filters, role: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, role: e.target.value })
+                  }
                 >
                   <option>All</option>
                   <option>General User</option>
@@ -64,12 +94,20 @@ export default function GeneralUsers() {
                   <option>Volunteer</option>
                 </select>
               </div>
-              <button className="reset-btn" onClick={handleReset}>Reset Filters</button>
-              <button className="apply-btn" onClick={handleApply}>Apply Filters</button>
+
+              {/* Reset filter button */}
+              <button className="reset-btn" onClick={handleReset}>
+                Reset Filters
+              </button>
+
+              {/* Apply filter button */}
+              <button className="apply-btn" onClick={handleApply}>
+                Apply Filters
+              </button>
             </div>
           </div>
 
-          {/* Table */}
+          {/* Users table */}
           <div className="table-box">
             <table className="users-table">
               <thead>
@@ -80,7 +118,9 @@ export default function GeneralUsers() {
                   <th>Role</th>
                 </tr>
               </thead>
+
               <tbody>
+                {/* Show fallback message if no users exist */}
                 {users.length === 0 ? (
                   <tr>
                     <td colSpan="4" style={{ textAlign: "center", padding: "20px" }}>
@@ -88,9 +128,12 @@ export default function GeneralUsers() {
                     </td>
                   </tr>
                 ) : (
+                  // Render each user row
                   users.map(user => (
                     <tr key={user._id}>
-                      <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>{user._id}</td>
+                      <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
+                        {user._id}
+                      </td>
                       <td>{user.name}</td>
                       <td>{user.email}</td>
                       <td>{user.role}</td>
@@ -99,8 +142,12 @@ export default function GeneralUsers() {
                 )}
               </tbody>
             </table>
+
+            {/* Simple info footer */}
             <div className="pagination-row">
-              <span>Showing {users.length} of {allUsers.length} users</span>
+              <span>
+                Showing {users.length} of {allUsers.length} users
+              </span>
             </div>
           </div>
         </div>

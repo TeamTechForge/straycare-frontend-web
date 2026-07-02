@@ -1,4 +1,5 @@
 // src/pages/Donations.jsx
+
 import { useEffect, useState } from "react";
 import "./Donations.css";
 import Sidebar from "../components/Sidebar";
@@ -6,73 +7,109 @@ import Header from "../components/Header";
 import api from "../api/axios";   
 
 export default function Donations() {
+
+  // Stores all donations fetched from backend (original dataset)
   const [allDonations, setAllDonations] = useState([]);
+
+  // Stores currently displayed donations (after filtering)
   const [donations, setDonations] = useState([]);
+
+  // Stores total amount of successful donations
   const [successTotal, setSuccessTotal] = useState(0);
+
+  // Stores filter values for date, category, and status
   const [filters, setFilters] = useState({ date: "", category: "All", status: "All" });
 
+  // Runs once when page loads to fetch donation data
   useEffect(() => {
     fetchDonations();
   }, []);
 
+  // Fetch donation history from backend API
   const fetchDonations = async () => {
     try {
       const res = await api.get("/api/donations/history");  
+
+      // Store full dataset
       setAllDonations(res.data);
       setDonations(res.data);
 
+      // Calculate total amount from successful donations only
       const successSum = res.data
         .filter(d => d.status === "SUCCESS")
         .reduce((acc, d) => acc + Number(d.amount || 0), 0);
+
       setSuccessTotal(successSum);
+
     } catch (err) {
       console.error("Error fetching donations:", err);
     }
   };
 
+  // Reset filters and restore full dataset
   const handleReset = () => {
     setFilters({ date: "", category: "All", status: "All" });
     setDonations(allDonations);
   };
 
+  // Apply filters to donation list
   const handleApply = () => {
     let filtered = allDonations;
+
+    // Filter by selected date (convert timestamp to YYYY-MM-DD format)
     if (filters.date) {
       filtered = filtered.filter(d => {
         const donationDate = new Date(d.timestamp).toISOString().split("T")[0];
         return donationDate === filters.date;
       });
     }
+
+    // Filter by category if not "All"
     if (filters.category !== "All") {
       filtered = filtered.filter(d => d.category === filters.category);
     }
+
+    // Filter by status if not "All"
     if (filters.status !== "All") {
       filtered = filtered.filter(d => d.status === filters.status);
     }
+
+    // Update table data
     setDonations(filtered);
   };
 
   return (
     <div className="home-container">
+
+      {/* Sidebar navigation */}
       <Sidebar />
+
       <main className="main-content">
         <div className="donations-container">
+
+          {/* Page header */}
           <Header title="Donation Transactions" />
 
-          {/* KPI Cards */}
+          {/* KPI summary cards */}
           <div className="kpi-cards">
+
+            {/* Total donations count */}
             <div className="kpi-card">
               <div>
                 <p className="kpi-label">Total Donations</p>
                 <p className="kpi-value">{allDonations.length}</p>
               </div>
             </div>
+
+            {/* Total successful donation amount */}
             <div className="kpi-card">
               <div>
                 <p className="kpi-label">Total Collected (Success)</p>
                 <p className="kpi-value">Rs. {successTotal.toLocaleString()}</p>
               </div>
             </div>
+
+            {/* Count of successful transactions */}
             <div className="kpi-card">
               <div>
                 <p className="kpi-label">Successful</p>
@@ -81,6 +118,8 @@ export default function Donations() {
                 </p>
               </div>
             </div>
+
+            {/* Count of failed transactions */}
             <div className="kpi-card">
               <div>
                 <p className="kpi-label">Failed</p>
@@ -91,10 +130,13 @@ export default function Donations() {
             </div>
           </div>
 
-          {/* Filters */}
+          {/* Filter section */}
           <div className="filter-box">
             <p className="filter-title">Filter Transactions</p>
+
             <div className="filter-row">
+
+              {/* Date filter */}
               <div className="filter-field">
                 <label>Date:</label>
                 <input
@@ -103,6 +145,8 @@ export default function Donations() {
                   onChange={(e) => setFilters({ ...filters, date: e.target.value })}
                 />
               </div>
+
+              {/* Category filter */}
               <div className="filter-field">
                 <label>Category:</label>
                 <select
@@ -114,6 +158,8 @@ export default function Donations() {
                   <option>Support Vet Clinic</option>
                 </select>
               </div>
+
+              {/* Status filter */}
               <div className="filter-field">
                 <label>Status:</label>
                 <select
@@ -125,14 +171,22 @@ export default function Donations() {
                   <option>FAILED</option>
                 </select>
               </div>
-              <button className="reset-btn" onClick={handleReset}>Reset Filters</button>
-              <button className="apply-btn" onClick={handleApply}>Apply Filters</button>
+
+              {/* Filter action buttons */}
+              <button className="reset-btn" onClick={handleReset}>
+                Reset Filters
+              </button>
+
+              <button className="apply-btn" onClick={handleApply}>
+                Apply Filters
+              </button>
             </div>
           </div>
 
-          {/* Transactions Table */}
+          {/* Transactions table */}
           <div className="table-box">
             <table className="transactions-table">
+
               <thead>
                 <tr>
                   <th>Order ID</th>
@@ -144,7 +198,9 @@ export default function Donations() {
                   <th>Status</th>
                 </tr>
               </thead>
+
               <tbody>
+                {/* Show message if no data */}
                 {donations.length === 0 ? (
                   <tr>
                     <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
@@ -152,14 +208,37 @@ export default function Donations() {
                     </td>
                   </tr>
                 ) : (
+                  // Render each donation row
                   donations.map((d) => (
                     <tr key={d._id}>
-                      <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>{d.orderId}</td>
+
+                      {/* Order ID */}
+                      <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
+                        {d.orderId}
+                      </td>
+
+                      {/* Organization name */}
                       <td>{d.organization}</td>
+
+                      {/* Amount formatted with commas */}
                       <td>{Number(d.amount).toLocaleString()}</td>
+
+                      {/* Category */}
                       <td>{d.category}</td>
+
+                      {/* Donation frequency */}
                       <td>{d.frequency}</td>
-                      <td>{new Date(d.timestamp).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })}</td>
+
+                      {/* Formatted date */}
+                      <td>
+                        {new Date(d.timestamp).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "2-digit",
+                          year: "numeric"
+                        })}
+                      </td>
+
+                      {/* Status badge with conditional styling */}
                       <td>
                         <span style={{
                           padding: "4px 12px",
@@ -172,14 +251,21 @@ export default function Donations() {
                           {d.status}
                         </span>
                       </td>
+
                     </tr>
                   ))
                 )}
               </tbody>
+
             </table>
+
+            {/* Table footer showing filtered vs total */}
             <div className="pagination-row">
-              <span>Showing {donations.length} of {allDonations.length} transactions</span>
+              <span>
+                Showing {donations.length} of {allDonations.length} transactions
+              </span>
             </div>
+
           </div>
         </div>
       </main>
