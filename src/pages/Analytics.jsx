@@ -6,12 +6,14 @@ import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from "recharts";
+import "./Analytics.css";
 
-const COLORS = ["#F5A623", "#4CAF50", "#2196F3", "#E53935"];
+const COLORS = ["#F5A623", "#4CAF50", "#2196F3", "#E53935", "#9C27B0", "#00BCD4"];
 
 export default function Analytics() {
   const [donations, setDonations] = useState([]);
   const [users, setUsers] = useState([]);
+  const [rescues, setRescues] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,12 +22,14 @@ export default function Analytics() {
 
   const fetchData = async () => {
     try {
-      const [donRes, userRes] = await Promise.all([
+      const [donRes, userRes, rescueRes] = await Promise.all([
         api.get("/api/donations/history"),
-        api.get("/api/admin/users").catch(() => ({ data: [] })),
+        api.get("/api/users/all").catch(() => ({ data: [] })),
+        api.get("/api/rescue-cases").catch(() => ({ data: [] })),
       ]);
       setDonations(donRes.data || []);
       setUsers(userRes.data || []);
+      setRescues(rescueRes.data || []);
     } catch (err) {
       console.error("Analytics fetch error:", err);
     } finally {
@@ -69,47 +73,61 @@ export default function Analytics() {
     ];
   };
 
+  // Users by role
+  const usersByRole = () => {
+    const map = {};
+    users.forEach((u) => {
+      const role = u.role || "Unknown";
+      map[role] = (map[role] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, value]) => ({ name, value }));
+  };
+
+  // Rescues by status
+  const rescuesByStatus = () => {
+    const map = {};
+    rescues.forEach((r) => {
+      const status = r.status || "Unknown";
+      map[status] = (map[status] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, value]) => ({ name, value }));
+  };
+
   // Total collected
   const totalCollected = donations
     .filter(d => d.status === "SUCCESS")
     .reduce((acc, d) => acc + Number(d.amount || 0), 0);
 
-  if (loading) return <div style={{ padding: "40px" }}>Loading analytics...</div>;
+  if (loading) return <div className="analytics-loading">Loading analytics...</div>;
 
   return (
     <div className="home-container">
       <Sidebar />
       <main className="main-content">
-        <div style={{ padding: "24px" }}>
+        <div className="analytics-container">
           <Header title="System Analytics" />
 
           {/* KPI Cards */}
-          <div style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}>
+          <div className="kpi-row">
             {[
+              { label: "Total Users", value: users.length },
+              { label: "Total Rescue Cases", value: rescues.length },
               { label: "Total Donations", value: donations.length },
-              { label: "Successful", value: donations.filter(d => d.status === "SUCCESS").length },
-              { label: "Failed", value: donations.filter(d => d.status === "FAILED").length },
               { label: "Total Collected", value: `Rs. ${totalCollected.toLocaleString()}` },
             ].map((card) => (
-              <div key={card.label} style={{
-                background: "#fff", borderRadius: "12px", padding: "20px 28px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)", minWidth: "180px", flex: 1,
-              }}>
-                <p style={{ color: "#888", fontSize: "13px", marginBottom: "6px" }}>{card.label}</p>
-                <p style={{ fontSize: "24px", fontWeight: "700", color: "#222" }}>{card.value}</p>
+              <div key={card.label} className="kpi-card">
+                <p className="kpi-label">{card.label}</p>
+                <p className="kpi-value">{card.value}</p>
               </div>
             ))}
           </div>
 
           {/* Charts Row 1 */}
-          <div style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}>
+          <div className="charts-row">
 
             {/* Donations over time */}
-            <div style={{
-              background: "#fff", borderRadius: "12px", padding: "20px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)", flex: 2, minWidth: "300px"
-            }}>
-              <h3 style={{ marginBottom: "16px", fontSize: "15px", color: "#333" }}>Donation Amount Over Time</h3>
+            <div className="chart-card wide">
+              <h3 className="chart-title">Donation Amount Over Time</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={donationsByMonth()}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -123,11 +141,8 @@ export default function Analytics() {
             </div>
 
             {/* Donation status pie */}
-            <div style={{
-              background: "#fff", borderRadius: "12px", padding: "20px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)", flex: 1, minWidth: "250px"
-            }}>
-              <h3 style={{ marginBottom: "16px", fontSize: "15px", color: "#333" }}>Payment Status</h3>
+            <div className="chart-card narrow">
+              <h3 className="chart-title">Payment Status</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie data={donationStatus()} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
@@ -143,14 +158,11 @@ export default function Analytics() {
           </div>
 
           {/* Charts Row 2 */}
-          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+          <div className="charts-row">
 
             {/* Donations by category */}
-            <div style={{
-              background: "#fff", borderRadius: "12px", padding: "20px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)", flex: 1, minWidth: "300px"
-            }}>
-              <h3 style={{ marginBottom: "16px", fontSize: "15px", color: "#333" }}>Donations by Category</h3>
+            <div className="chart-card">
+              <h3 className="chart-title">Donations by Category</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={donationsByCategory()}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -164,11 +176,8 @@ export default function Analytics() {
             </div>
 
             {/* Count per month */}
-            <div style={{
-              background: "#fff", borderRadius: "12px", padding: "20px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)", flex: 1, minWidth: "300px"
-            }}>
-              <h3 style={{ marginBottom: "16px", fontSize: "15px", color: "#333" }}>Number of Donations Per Month</h3>
+            <div className="chart-card">
+              <h3 className="chart-title">Number of Donations Per Month</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={donationsByMonth()}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -180,6 +189,42 @@ export default function Analytics() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+          </div>
+
+          {/* Charts Row 3 */}
+          <div className="charts-row">
+
+            {/* Users by role */}
+            <div className="chart-card">
+              <h3 className="chart-title">Users by Role</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie data={usersByRole()} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                    {usersByRole().map((_, index) => (
+                      <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Rescues by status */}
+            <div className="chart-card">
+              <h3 className="chart-title">Rescue Cases by Status</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={rescuesByStatus()}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" fontSize={12} />
+                  <YAxis fontSize={12} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="value" fill="#2196F3" name="Cases" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
           </div>
 
         </div>

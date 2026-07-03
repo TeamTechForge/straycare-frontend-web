@@ -13,7 +13,7 @@ export default function Sidebar() {
           <li><NavLink to="/analytics" className="nav-link">System Analytics</NavLink></li>
           <li><NavLink to="/rescues" className="nav-link">Rescues</NavLink></li>
           <li><NavLink to="/notifications" className="nav-link">Notifications</NavLink></li>
-          <li><NavLink to="/reports" className="nav-link">Reports</NavLink></li>
+          <li><NavLink to="/reports/users" className="nav-link">Reports</NavLink></li>
           <li><NavLink to="/settings" className="nav-link">Settings</NavLink></li>
           <li><NavLink to="/logout" className="nav-link">Logout</NavLink></li>
         </ul>

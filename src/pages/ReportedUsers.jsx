@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import NavTabs from "../components/NavTabs";
 import api from "../api/axios";
+import "./ReportedUsers.css";
 
 export default function ReportedUsers() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actingOn, setActingOn] = useState(null);
 
   useEffect(() => {
     fetchReports();
@@ -22,69 +25,117 @@ export default function ReportedUsers() {
     }
   };
 
+  const handleAction = async (report, action) => {
+    const confirmMsg =
+      action === "Suspend"
+        ? "Are you sure you want to suspend this user's account?"
+        : action === "Warn"
+        ? "Send a warning and resolve this report?"
+        : "Dismiss this report? No action will be taken on the user.";
+
+    if (!window.confirm(confirmMsg)) return;
+
+    setActingOn(report._id);
+    try {
+      await api.patch(`/api/moderation/user/${report.reportedUserId}/action`, {
+        action,
+        reportId: report._id,
+      });
+      setReports(prev =>
+        prev.map(r => (r._id === report._id ? { ...r, status: "Resolved" } : r))
+      );
+    } catch (err) {
+      console.error(`Failed to ${action} user:`, err);
+      alert(`Failed to ${action.toLowerCase()} user. Please try again.`);
+    } finally {
+      setActingOn(null);
+    }
+  };
+
   return (
     <div className="home-container">
       <Sidebar />
       <main className="main-content">
-        <div style={{ padding: "24px" }}>
+        <div className="reported-users-container">
           <Header title="Reported Users & Posts" />
+
+          <NavTabs
+            tabs={[
+              { label: "Reported Users", to: "/reports/users" },
+              { label: "Reported Posts", disabled: true },
+            ]}
+          />
 
           {loading ? (
             <p>Loading...</p>
           ) : reports.length === 0 ? (
-            <div style={{
-              background: "#fff", borderRadius: "12px", padding: "40px",
-              textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", marginTop: "24px"
-            }}>
-              <p style={{ color: "#888", fontSize: "16px" }}>No reported users or posts found.</p>
+            <div className="empty-state">
+              <p>No reported users or posts found.</p>
             </div>
           ) : (
-            <div style={{
-              background: "#fff", borderRadius: "12px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.08)", marginTop: "24px", overflow: "hidden"
-            }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead style={{ background: "#FFF9E6" }}>
+            <div className="reports-table-box">
+              <table className="reports-table">
+                <thead>
                   <tr>
-                    {["Reported User", "Reason", "Reported By", "Date", "Status", "Action"].map(h => (
-                      <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: "13px", fontWeight: "600", color: "#555" }}>
-                        {h}
-                      </th>
+                    {["Reported User ID", "Reason", "Description", "Reported By ID", "Date", "Status", "Actions"].map(h => (
+                      <th key={h}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {reports.map((r) => (
-                    <tr key={r._id} style={{ borderTop: "1px solid #f0f0f0" }}>
-                      <td style={{ padding: "14px 16px" }}>{r.reportedUser || "N/A"}</td>
-                      <td style={{ padding: "14px 16px" }}>{r.reason || "N/A"}</td>
-                      <td style={{ padding: "14px 16px" }}>{r.reportedBy || "N/A"}</td>
-                      <td style={{ padding: "14px 16px" }}>
-                        {new Date(r.timestamp).toLocaleDateString("en-US", {
-                          month: "short", day: "2-digit", year: "numeric"
-                        })}
-                      </td>
-                      <td style={{ padding: "14px 16px" }}>
-                        <span style={{
-                          padding: "4px 12px", borderRadius: "9999px",
-                          fontSize: "12px", fontWeight: "600",
-                          background: r.status === "Resolved" ? "#DCFCE7" : "#FEF9C3",
-                          color: r.status === "Resolved" ? "#16A34A" : "#854D0E",
-                        }}>
-                          {r.status || "Pending"}
-                        </span>
-                      </td>
-                      <td style={{ padding: "14px 16px" }}>
-                        <button style={{
-                          padding: "6px 14px", borderRadius: "6px", border: "none",
-                          background: "#F5A623", color: "#fff", fontWeight: "600",
-                          cursor: "pointer", fontSize: "12px"
-                        }}>
-                          Review
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {reports.map((r) => {
+                    const isResolved = r.status === "Resolved";
+                    const isBusy = actingOn === r._id;
+                    return (
+                      <tr key={r._id}>
+                        <td className="mono-id">{r.reportedUserId || "N/A"}</td>
+                        <td>{r.reason || "N/A"}</td>
+                        <td className="report-description">{r.description || "—"}</td>
+                        <td className="mono-id">{r.reporterUserId || "N/A"}</td>
+                        <td>
+                          {r.createdAt
+                            ? new Date(r.createdAt).toLocaleDateString("en-US", {
+                                month: "short", day: "2-digit", year: "numeric"
+                              })
+                            : "—"}
+                        </td>
+                        <td>
+                          <span className={`status-badge ${isResolved ? "status-resolved" : "status-pending"}`}>
+                            {r.status || "Pending"}
+                          </span>
+                        </td>
+                        <td>
+                          {isResolved ? (
+                            <span className="resolved-label">Resolved</span>
+                          ) : (
+                            <div className="action-buttons">
+                              <button
+                                disabled={isBusy}
+                                onClick={() => handleAction(r, "Dismiss")}
+                                className="action-btn btn-dismiss"
+                              >
+                                Dismiss
+                              </button>
+                              <button
+                                disabled={isBusy}
+                                onClick={() => handleAction(r, "Warn")}
+                                className="action-btn btn-warn"
+                              >
+                                Warn
+                              </button>
+                              <button
+                                disabled={isBusy}
+                                onClick={() => handleAction(r, "Suspend")}
+                                className="action-btn btn-suspend"
+                              >
+                                Suspend
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
