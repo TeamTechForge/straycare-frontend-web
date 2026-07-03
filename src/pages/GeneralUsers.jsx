@@ -46,17 +46,14 @@ export default function GeneralUsers() {
     setUsers(allUsers);
   };
 
-  // Apply selected filters to user list
-  const handleApply = () => {
-    let filtered = allUsers;
-
-    // Filter by role only if not "All"
-    if (filters.role !== "All") {
-      filtered = filtered.filter(u => u.role === filters.role);
+  // Badge colors per role
+  const getRoleStyle = (role) => {
+    switch (role) {
+      case "General User": return { backgroundColor: "#DBEAFE", color: "#2563EB" };
+      case "Rescuer": return { backgroundColor: "#FEF3C7", color: "#D97706" };
+      case "Volunteer": return { backgroundColor: "#DCFCE7", color: "#16A34A" };
+      default: return { backgroundColor: "#F3F4F6", color: "#6B7280" };
     }
-
-    // Update displayed users
-    setUsers(filtered);
   };
 
   return (
@@ -79,14 +76,16 @@ export default function GeneralUsers() {
 
             <div className="filter-row">
 
-              {/* Role dropdown filter */}
+              {/* Role dropdown filter - auto-applies on change */}
               <div className="filter-field">
                 <label>Role:</label>
                 <select
                   value={filters.role}
-                  onChange={(e) =>
-                    setFilters({ ...filters, role: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const role = e.target.value;
+                    setFilters({ ...filters, role });
+                    setUsers(role === "All" ? allUsers : allUsers.filter(u => u.role === role));
+                  }}
                 >
                   <option>All</option>
                   <option>General User</option>
@@ -98,11 +97,6 @@ export default function GeneralUsers() {
               {/* Reset filter button */}
               <button className="reset-btn" onClick={handleReset}>
                 Reset Filters
-              </button>
-
-              {/* Apply filter button */}
-              <button className="apply-btn" onClick={handleApply}>
-                Apply Filters
               </button>
             </div>
           </div>
@@ -136,7 +130,17 @@ export default function GeneralUsers() {
                       </td>
                       <td>{user.name}</td>
                       <td>{user.email}</td>
-                      <td>{user.role}</td>
+                      <td>
+                        <span style={{
+                          ...getRoleStyle(user.role),
+                          padding: "4px 12px",
+                          borderRadius: "9999px",
+                          fontWeight: "600",
+                          fontSize: "12px",
+                        }}>
+                          {user.role}
+                        </span>
+                      </td>
                     </tr>
                   ))
                 )}

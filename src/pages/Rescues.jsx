@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import "./Rescues.css";
-import api from "../api/axios";   
+import api from "../api/axios";
 
 export default function Rescues() {
   const [rescues, setRescues] = useState([]);
@@ -47,17 +47,16 @@ export default function Rescues() {
     setFilteredRescues(rescues);
   };
 
-  const totalActive = rescues.filter(r => r.status === "Needs Help" || r.status === "Under Rescue").length;
-  const pending = rescues.filter(r => r.status === "Needs Help").length;
-  const completed = rescues.filter(r => r.status === "Rescued" || r.status === "Ready for Adoption").length;
+  // Real statuses in the data: "pending", "completed", "rejected"
+  const totalCases = rescues.length;
+  const pending = rescues.filter(r => r.status === "pending").length;
+  const completed = rescues.filter(r => r.status === "completed").length;
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case "Needs Help": return { backgroundColor: "#FCDCDD", color: "#D43F25" };
-      case "Under Rescue": return { backgroundColor: "#FEF3C7", color: "#D97706" };
-      case "Rescued": return { backgroundColor: "#DCFCE7", color: "#16A34A" };
-      case "Ready for Adoption": return { backgroundColor: "#DBEAFE", color: "#2563EB" };
-      case "Treated": return { backgroundColor: "#DCFCE7", color: "#16A34A" };
+      case "pending": return { backgroundColor: "#FEF3C7", color: "#D97706" };
+      case "completed": return { backgroundColor: "#DCFCE7", color: "#16A34A" };
+      case "rejected": return { backgroundColor: "#FCDCDD", color: "#D43F25" };
       default: return { backgroundColor: "#F3F4F6", color: "#6B7280" };
     }
   };
@@ -73,8 +72,8 @@ export default function Rescues() {
           <div className="kpi-cards">
             <div className="kpi-card">
               <div>
-                <p className="kpi-label">Total Active Rescues</p>
-                <p className="kpi-value">{totalActive}</p>
+                <p className="kpi-label">Total Cases</p>
+                <p className="kpi-value">{totalCases}</p>
               </div>
             </div>
             <div className="kpi-card">
@@ -107,11 +106,9 @@ export default function Rescues() {
                 <label>Status:</label>
                 <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                   <option value="">All Statuses</option>
-                  <option value="Needs Help">Needs Help</option>
-                  <option value="Under Rescue">Under Rescue</option>
-                  <option value="Rescued">Rescued</option>
-                  <option value="Treated">Treated</option>
-                  <option value="Ready for Adoption">Ready for Adoption</option>
+                  <option value="pending">Pending</option>
+                  <option value="completed">Completed</option>
+                  <option value="rejected">Rejected</option>
                 </select>
               </div>
               <button className="reset-btn" onClick={handleReset}>Reset Filters</button>
@@ -143,7 +140,7 @@ export default function Rescues() {
                         <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
                           #{rescue.caseId || rescue._id.slice(-6).toUpperCase()}
                         </td>
-                        <td>🐾 {rescue.animalType} {rescue.breed && rescue.breed !== "Unknown" ? `(${rescue.breed})` : ""}</td>
+                        <td>🐾 {rescue.animalType || "Unknown"}</td>
                         <td>
                           <span style={{
                             ...getStatusStyle(rescue.status),
@@ -155,9 +152,9 @@ export default function Rescues() {
                             {rescue.status}
                           </span>
                         </td>
-                        <td>{rescue.anonymous ? "Anonymous" : rescue.reporter || "Anonymous"}</td>
+                        <td>{rescue.reporterName || "Anonymous"}</td>
                         <td style={{ fontSize: "12px", color: "#6B7280" }}>
-                          {rescue.location?.address || "—"}
+                          {rescue.rescueLocation?.address || rescue.reporterLocation?.address || "—"}
                         </td>
                         <td>{rescue.createdAt ? new Date(rescue.createdAt).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : "—"}</td>
                       </tr>
