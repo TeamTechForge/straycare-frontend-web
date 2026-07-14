@@ -1,12 +1,17 @@
 import { NavLink, useLocation } from "react-router-dom";
 import "./NavTabs.css";
 
-/**
- * Generic tab navigation.
- * tabs: array of { label, to, disabled? }
- * A tab with disabled: true renders as non-clickable text (e.g. "coming soon" features).
- */
-export default function NavTabs({ tabs }) {
+interface Tab {
+  label: string;
+  to?: string;
+  disabled?: boolean;
+}
+
+interface NavTabsProps {
+  tabs: Tab[];
+}
+
+export default function NavTabs({ tabs }: NavTabsProps) {
   const location = useLocation();
 
   return (
@@ -19,7 +24,7 @@ export default function NavTabs({ tabs }) {
         ) : (
           <NavLink
             key={tab.label}
-            to={tab.to}
+            to={tab.to || "/"}
             className={({ isActive }) =>
               `tab ${isActive || location.pathname === tab.to ? "active" : ""}`
             }

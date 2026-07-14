@@ -3,7 +3,10 @@ import "./UserNavTabs.css";
 
 export default function UserNavTabs() {
   const location = useLocation();
-  const isVerificationPage = location.pathname.includes("/users/") && location.pathname.includes("/documents");
+
+  const isVerificationPage =
+    location.pathname.includes("/users/") &&
+    location.pathname.includes("/documents");
 
   return (
     <div className="user-nav-tabs">
@@ -13,12 +16,14 @@ export default function UserNavTabs() {
       >
         Users
       </NavLink>
+
       <NavLink
         to="/users/vets-ngos"
         className={({ isActive }) => `tab ${isActive ? "active" : ""}`}
       >
         Organizations
       </NavLink>
+
       {isVerificationPage ? (
         <NavLink to={location.pathname} className="tab active">
           User Verification
