@@ -38,14 +38,14 @@ export default function Login() {
         password,
       });
 
-      if (res.data.success) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("adminId", res.data.adminId);
-        setError("");
-        navigate("/home");
-      } else {
-        setError(res.data.error || "Login failed");
-      }
+      if (res.data.token) {
+  localStorage.setItem("token", res.data.token);
+  localStorage.setItem("adminId", res.data.admin?.id || "");
+  setError("");
+  navigate("/home");
+} else {
+  setError(res.data.error || "Login failed");
+}
 
     } catch (err: any) {
       console.error("Login error:", err);
