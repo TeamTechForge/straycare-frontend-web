@@ -4,16 +4,23 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import api from "../api/axios";
 
-export default function Notifications() {
-  const [notifications, setNotifications] = useState([]);
-  const [title, setTitle] = useState("");
-  const [audience, setAudience] = useState("All Users");
-  const [message, setMessage] = useState("");
+interface Notification {
+  _id: string;
+  title: string;
+  message: string;
+  audience: string;
+  createdAt: string;
+}
 
-  // Fetch notifications from admin_notifications collection
+export default function Notifications() {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [title, setTitle] = useState<string>("");
+  const [audience, setAudience] = useState<string>("All Users");
+  const [message, setMessage] = useState<string>("");
+
   const fetchNotifications = async () => {
     try {
-      const res = await api.get("/api/admin-notifications"); 
+      const res = await api.get("/api/admin-notifications");
       setNotifications(res.data);
     } catch (err) {
       console.error("Failed to fetch admin notifications:", err);
@@ -24,15 +31,21 @@ export default function Notifications() {
     fetchNotifications();
   }, []);
 
-  // Submit admin notification
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     try {
-      await api.post("/api/admin-notifications", { title, audience, message }); 
+      await api.post("/api/admin-notifications", {
+        title,
+        audience,
+        message,
+      });
+
       setTitle("");
       setAudience("All Users");
       setMessage("");
-      fetchNotifications(); // refresh list
+
+      fetchNotifications();
     } catch (err) {
       console.error("Failed to send admin notification:", err);
     }
@@ -41,13 +54,14 @@ export default function Notifications() {
   return (
     <div className="home-container">
       <Sidebar />
+
       <main className="main-content">
         <div className="notifications-container">
           <Header title="Admin Notifications" />
 
-          {/* Create New Admin Notification Form */}
           <div className="create-notification">
             <h3>Create New Admin Notification</h3>
+
             <form onSubmit={handleSubmit}>
               <label>
                 Notification Title
@@ -77,7 +91,7 @@ export default function Notifications() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   required
-                ></textarea>
+                />
               </label>
 
               <button type="submit" className="send-btn">
@@ -86,21 +100,26 @@ export default function Notifications() {
             </form>
           </div>
 
-          {/* Previously Sent Admin Notifications */}
           <div className="previous-notifications">
             <h3>Previously Sent Admin Notifications</h3>
+
             {notifications.length === 0 ? (
               <p>No admin notifications sent yet.</p>
             ) : (
               <ul>
-                {notifications.map((n) => (
+                {notifications.map((n: Notification) => (
                   <li key={n._id}>
                     <strong>{n.title}</strong> — {n.message}
+
                     <span style={{ color: "#777", marginLeft: "10px" }}>
                       ({n.audience})
                     </span>
+
                     <br />
-                    <small>{new Date(n.createdAt).toLocaleString()}</small>
+
+                    <small>
+                      {new Date(n.createdAt).toLocaleString()}
+                    </small>
                   </li>
                 ))}
               </ul>

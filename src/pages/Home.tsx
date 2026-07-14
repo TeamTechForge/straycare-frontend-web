@@ -13,7 +13,15 @@ import homeBg2 from "../assets/Home02.jpg";
 import homeBg3 from "../assets/Home03.jpg";
 import homeBg4 from "../assets/Home04.jpg";
 
-const cards = [
+interface ActionCard {
+  to: string;
+  img: string;
+  alt: string;
+  label: string;
+  desc: string;
+}
+
+const cards: ActionCard[] = [
   {
     to: "/users/general",
     img: verifyImg,
@@ -44,15 +52,21 @@ const cards = [
   },
 ];
 
-const bannerImages = [homeBg1, homeBg2, homeBg3, homeBg4];
+const bannerImages: string[] = [
+  homeBg1,
+  homeBg2,
+  homeBg3,
+  homeBg4,
+];
 
 export default function Home() {
-  const [currentImage, setCurrentImage] = useState(0);
+  const [currentImage, setCurrentImage] = useState<number>(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % bannerImages.length);
     }, 3500);
+
     return () => clearInterval(timer);
   }, []);
 
@@ -63,38 +77,41 @@ export default function Home() {
       <main className="main-content">
         <div className="content">
 
-          {/* Banner */}
           <div className="banner">
             {bannerImages.map((img, i) => (
               <div
                 key={i}
-                className={`banner-slide ${i === currentImage ? "active" : ""}`}
+                className={`banner-slide ${
+                  i === currentImage ? "active" : ""
+                }`}
                 style={{ backgroundImage: `url(${img})` }}
               />
             ))}
+
             <div className="banner-dots">
               {bannerImages.map((_, i) => (
                 <button
                   key={i}
-                  className={`banner-dot ${i === currentImage ? "active" : ""}`}
+                  className={`banner-dot ${
+                    i === currentImage ? "active" : ""
+                  }`}
                   onClick={() => setCurrentImage(i)}
+                  aria-label={`Go to slide ${i + 1}`}
                 />
               ))}
             </div>
 
-            {/* Wave with yellow border */}
             <div className="banner-curve">
               <svg
                 viewBox="0 0 1440 140"
                 xmlns="http://www.w3.org/2000/svg"
                 preserveAspectRatio="none"
               >
-                {/* Yellow border wave */}
                 <path
                   d="M0,0 Q360,120 720,40 Q1080,-40 1440,70 L1440,88 Q1080,-22 720,58 Q360,138 0,18 Z"
                   fill="#ef9f27"
                 />
-                {/* White background wave */}
+
                 <path
                   d="M0,18 Q360,138 720,58 Q1080,-22 1440,88 L1440,140 L0,140 Z"
                   fill="#f7f5f0"
@@ -103,17 +120,31 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Cards */}
           <div className="action-grid">
             {cards.map((card) => (
-              <NavLink to={card.to} className="action-card" key={card.to}>
+              <NavLink
+                to={card.to}
+                className="action-card"
+                key={card.to}
+              >
                 <div className="card-icon-wrap">
-                  <img src={card.img} alt={card.alt} className="card-icon" />
+                  <img
+                    src={card.img}
+                    alt={card.alt}
+                    className="card-icon"
+                  />
                 </div>
+
                 <div className="card-text">
-                  <span className="card-label">{card.label}</span>
-                  <span className="card-desc">{card.desc}</span>
+                  <span className="card-label">
+                    {card.label}
+                  </span>
+
+                  <span className="card-desc">
+                    {card.desc}
+                  </span>
                 </div>
+
                 <span className="card-arrow">›</span>
               </NavLink>
             ))}
