@@ -6,9 +6,17 @@ import api from "../api/axios";
 import UserNavTabs from "../components/UserNavTabs";
 import "./VetsNgoUsers.css";
 
+interface User {
+  _id: string;
+  name?: string;
+  fullName?: string;
+  role: string;
+  status?: "Verified" | "Rejected" | "Pending";
+}
+
 export default function VetsNgoUsers() {
   // Stores Vet and NGO user list fetched from backend
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   // Used to navigate to other pages (ex: documents page)
   const navigate = useNavigate();
@@ -39,6 +47,7 @@ export default function VetsNgoUsers() {
   return (
     <div className="home-container">
       <Sidebar />
+
       <main className="main-content">
         <div className="users-container">
           <Header title="User Management" />
@@ -57,7 +66,7 @@ export default function VetsNgoUsers() {
             </thead>
 
             <tbody>
-              {users.map(user => (
+              {users.map((user: User) => (
                 <tr key={user._id}>
                   <td>{user._id}</td>
                   <td>{user.name || user.fullName}</td>
@@ -80,7 +89,11 @@ export default function VetsNgoUsers() {
 
                   {/* Navigate to user's documents page */}
                   <td>
-                    <button onClick={() => navigate(`/users/${user._id}/documents`)}>
+                    <button
+                      onClick={() =>
+                        navigate(`/users/${user._id}/documents`)
+                      }
+                    >
                       Check Documents
                     </button>
                   </td>
@@ -88,7 +101,6 @@ export default function VetsNgoUsers() {
               ))}
             </tbody>
           </table>
-
         </div>
       </main>
     </div>

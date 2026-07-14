@@ -7,7 +7,7 @@ export default function Logout() {
   useEffect(() => {
     localStorage.removeItem("token");
     navigate("/login");
-  }, []);
+  }, [navigate]);
 
   return null;
 }

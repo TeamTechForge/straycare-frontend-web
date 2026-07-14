@@ -6,12 +6,30 @@ import api from "../api/axios";
 import UserNavTabs from "../components/UserNavTabs";
 import "./UserDocuments.css";
 
+interface User {
+  name: string;
+  role: string;
+  status?: string;
+  location?: string;
+  regNumber?: string;
+  contactPerson?: string;
+  foundedYear?: string | number;
+  bio?: string;
+  createdAt?: string;
+}
+
+interface Document {
+  type: string;
+  url: string;
+}
+
 export default function UserDocuments() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [documents, setDocuments] = useState([]);
-  const [status, setStatus] = useState("");
+
+  const [user, setUser] = useState<User | null>(null);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [status, setStatus] = useState<string>("");
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
@@ -25,13 +43,16 @@ export default function UserDocuments() {
         console.error("Failed to fetch user documents:", err);
       }
     }
+
     fetchData();
   }, [id]);
 
-  const handleStatusUpdate = async (newStatus) => {
+  const handleStatusUpdate = async (newStatus: string) => {
     try {
       setUpdating(true);
-      await api.patch(`/api/users/${id}/status`, { status: newStatus });
+      await api.patch(`/api/users/${id}/status`, {
+        status: newStatus,
+      });
       setStatus(newStatus);
     } catch (err) {
       console.error("Failed to update status:", err);
@@ -40,13 +61,16 @@ export default function UserDocuments() {
     }
   };
 
-  const isLocalPath = (url) => url && url.startsWith("file:///");
+  const isLocalPath = (url: string) => url.startsWith("file:///");
 
-  if (!user) return <p style={{ padding: "40px" }}>Loading...</p>;
+  if (!user) {
+    return <p style={{ padding: "40px" }}>Loading...</p>;
+  }
 
   return (
     <div className="home-container">
       <Sidebar />
+
       <main className="main-content">
         <div className="user-docs-container">
           <Header title="User Management" />
@@ -57,15 +81,25 @@ export default function UserDocuments() {
             <div className="details-header">
               <div>
                 <h2>{user.name}</h2>
-                <span className={`role-badge ${user.role === "Vet" ? "role-vet" : "role-ngo"}`}>
+
+                <span
+                  className={`role-badge ${
+                    user.role === "Vet" ? "role-vet" : "role-ngo"
+                  }`}
+                >
                   {user.role}
                 </span>
               </div>
-              <span className={`status-badge ${
-                status === "Verified" ? "status-verified" :
-                status === "Rejected" ? "status-rejected" :
-                "status-pending"
-              }`}>
+
+              <span
+                className={`status-badge ${
+                  status === "Verified"
+                    ? "status-verified"
+                    : status === "Rejected"
+                    ? "status-rejected"
+                    : "status-pending"
+                }`}
+              >
                 {status}
               </span>
             </div>
@@ -77,37 +111,49 @@ export default function UserDocuments() {
                   <span className="detail-value">{user.location}</span>
                 </div>
               )}
+
               {user.regNumber && (
                 <div className="detail-item">
                   <span className="detail-label">
-                    {user.role === "Vet" ? "License Number" : "Registration Number"}
+                    {user.role === "Vet"
+                      ? "License Number"
+                      : "Registration Number"}
                   </span>
+
                   <span className="detail-value">{user.regNumber}</span>
                 </div>
               )}
+
               {user.contactPerson && (
                 <div className="detail-item">
                   <span className="detail-label">Contact Person</span>
                   <span className="detail-value">{user.contactPerson}</span>
                 </div>
               )}
+
               {user.foundedYear && (
                 <div className="detail-item">
                   <span className="detail-label">
-                    {user.role === "Vet" ? "Experience" : "Founded Year"}
+                    {user.role === "Vet"
+                      ? "Experience"
+                      : "Founded Year"}
                   </span>
+
                   <span className="detail-value">{user.foundedYear}</span>
                 </div>
               )}
+
               {user.bio && (
                 <div className="detail-item full-width">
                   <span className="detail-label">Bio</span>
                   <span className="detail-value">{user.bio}</span>
                 </div>
               )}
+
               {user.createdAt && (
                 <div className="detail-item">
                   <span className="detail-label">Registered On</span>
+
                   <span className="detail-value">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </span>
@@ -119,14 +165,17 @@ export default function UserDocuments() {
           {/* Documents Section */}
           <div className="docs-section">
             <h3>Uploaded Documents</h3>
+
             <div className="docs-list">
               {documents.length > 0 ? (
-                documents.map((doc, index) => (
+                documents.map((doc: Document, index: number) => (
                   <div className="doc-item" key={index}>
                     <span className="doc-type">{doc.type}</span>
+
                     {isLocalPath(doc.url) ? (
                       <span className="doc-unavailable">
-                         Document stored on mobile device — not accessible from web
+                        Document stored on mobile device — not accessible from
+                        web
                       </span>
                     ) : (
                       <a
@@ -155,6 +204,7 @@ export default function UserDocuments() {
             >
               {status === "Verified" ? "✓ Verified" : "Verify"}
             </button>
+
             <button
               className="reject-btn"
               onClick={() => handleStatusUpdate("Rejected")}
@@ -162,6 +212,7 @@ export default function UserDocuments() {
             >
               {status === "Rejected" ? "✗ Rejected" : "Reject"}
             </button>
+
             <button
               className="back-btn"
               onClick={() => navigate("/users/vets-ngos")}
@@ -169,7 +220,6 @@ export default function UserDocuments() {
               ← Back
             </button>
           </div>
-
         </div>
       </main>
     </div>
