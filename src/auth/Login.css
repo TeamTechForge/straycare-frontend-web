@@ -6,18 +6,19 @@
   justify-content: center;
   background: #fff4d2;
   font-family: "Segoe UI", sans-serif;
-  padding: 40px 20px;
+  padding: 24px 16px;
+  box-sizing: border-box;
 }
 
 /* ── Floating card ───────────────────────────────── */
 .login-card {
   display: flex;
   width: 100%;
-  max-width: 1000px;
-  min-height: 620px;
-  border-radius: 24px;
+  max-width: 620px;      /* was 900px */
+  min-height: auto;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 
 /* ── Left: image carousel ────────────────────────── */
@@ -44,17 +45,17 @@
 /* ── Dots ────────────────────────────────────────── */
 .slide-dots {
   position: absolute;
-  bottom: 24px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 8px;
+  gap: 6px;
   z-index: 2;
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.5);
   border: none;
@@ -76,15 +77,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 56px 52px;
-  gap: 16px;
+  padding: 28px 24px;   /* was clamp(24-56px) */
+  gap: 12px;
 }
 
 /* ── Logo ────────────────────────────────────────── */
 .logo-wrap {
-  width: 260px;
-  height: 260px;
-  margin-bottom: -12px;
+  width: 120px;         /* was up to 200px */
+  height: 120px;
+  margin-bottom: -8px;
 }
 
 .logo-wrap img {
@@ -100,14 +101,14 @@
 }
 
 .login-heading h1 {
-  font-size: 2.4rem;
+  font-size: 1.5rem;    /* was up to 2.4rem */
   font-weight: 600;
   color: #2c1a0e;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
 }
 
 .login-heading p {
-  font-size: 1rem;
+  font-size: 0.85rem;
   color: #999;
   margin: 0;
 }
@@ -116,29 +117,29 @@
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
   width: 100%;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .input-group label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #2c1a0e;
 }
 
 .login-form input {
-  height: 50px;
-  padding: 0 16px;
-  border-radius: 10px;
+  height: 40px;         /* was 50px */
+  padding: 0 14px;
+  border-radius: 8px;
   border: 0.5px solid #e5e0d8;
   background: #fafafa;
-  font-size: 1rem;
+  font-size: 0.9rem;
   width: 100%;
   box-sizing: border-box;
   color: #2c1a0e;
@@ -163,12 +164,12 @@
 }
 
 .password-wrapper input {
-  padding-right: 48px;
+  padding-right: 40px;
 }
 
 .password-toggle {
   position: absolute;
-  right: 14px;
+  right: 12px;
   cursor: pointer;
   color: #bbb;
   background: none;
@@ -187,13 +188,13 @@
 .form-footer {
   display: flex;
   justify-content: flex-end;
-  margin-top: -6px;
+  margin-top: -4px;
 }
 
 .forgot-link {
   color: #ef9f27;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   transition: color 0.18s ease;
 }
 
@@ -204,20 +205,20 @@
 /* ── Error ───────────────────────────────────────── */
 .error-message {
   color: #e24b4a;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   margin: 0;
   text-align: center;
 }
 
 /* ── Login button ────────────────────────────────── */
 .login-btn {
-  height: 50px;
+  height: 40px;         /* was 50px */
   width: 100%;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #ef9f27;
   color: #fff;
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   cursor: pointer;
   border: none;
   transition: filter 0.18s ease, transform 0.15s ease;
@@ -226,4 +227,20 @@
 .login-btn:hover {
   filter: brightness(95%);
   transform: translateY(-1px);
+}
+
+/* ── Small screens: stack image on top, form below ── */
+@media (max-width: 620px) {
+  .login-card {
+    flex-direction: column;
+    max-width: 380px;
+  }
+
+  .card-image {
+    height: 180px;
+  }
+
+  .card-form {
+    flex: none;
+  }
 }
