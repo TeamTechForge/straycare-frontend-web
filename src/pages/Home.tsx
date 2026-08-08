@@ -2,6 +2,7 @@ import "./Home.css";
 import Sidebar from "../components/Sidebar";
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import api from "../api/axios";
 
 import verifyImg from "../assets/verify.png";
 import donationsImg from "../assets/donations.png";
@@ -19,6 +20,14 @@ interface ActionCard {
   alt: string;
   label: string;
   desc: string;
+}
+
+interface AdminNotification {
+  _id: string;
+  title: string;
+  message: string;
+  audience: string[] | string;
+  createdAt: string;
 }
 
 const cards: ActionCard[] = [
@@ -61,6 +70,8 @@ const bannerImages: string[] = [
 
 export default function Home() {
   const [currentImage, setCurrentImage] = useState<number>(0);
+  const [adminNotifications, setAdminNotifications] = useState<AdminNotification[]>([]);
+  const [bellOpen, setBellOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -69,6 +80,27 @@ export default function Home() {
 
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    fetchAdminNotifications();
+  }, []);
+
+  const fetchAdminNotifications = async () => {
+    try {
+      const res = await api.get("/api/admin-notifications");
+
+      const forAdmins = (res.data || []).filter((n: AdminNotification) => {
+        if (Array.isArray(n.audience)) {
+          return n.audience.includes("admin");
+        }
+        return n.audience === "Admins";
+      });
+
+      setAdminNotifications(forAdmins.slice(0, 10));
+    } catch (err) {
+      console.error("Failed to fetch admin notifications:", err);
+    }
+  };
 
   return (
     <div className="home-container">
@@ -87,6 +119,41 @@ export default function Home() {
                 style={{ backgroundImage: `url(${img})` }}
               />
             ))}
+
+            <div className="admin-bell-wrap">
+              <button
+                className="admin-bell-btn"
+                onClick={() => setBellOpen((prev) => !prev)}
+                aria-label="Admin notifications"
+              >
+                🔔
+                {adminNotifications.length > 0 && (
+                  <span className="admin-bell-badge">
+                    {adminNotifications.length}
+                  </span>
+                )}
+              </button>
+
+              {bellOpen && (
+                <div className="admin-bell-dropdown">
+                  <p className="admin-bell-title">Admin Notifications</p>
+
+                  {adminNotifications.length === 0 ? (
+                    <p className="admin-bell-empty">No admin notifications yet.</p>
+                  ) : (
+                    adminNotifications.map((n) => (
+                      <div className="admin-bell-item" key={n._id}>
+                        <strong>{n.title}</strong>
+                        <p>{n.message}</p>
+                        <small>
+                          {new Date(n.createdAt).toLocaleString()}
+                        </small>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
 
             <div className="banner-dots">
               {bannerImages.map((_, i) => (

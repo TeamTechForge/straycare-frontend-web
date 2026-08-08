@@ -172,3 +172,103 @@
 .action-card:hover .card-arrow {
   color: #ef9f27;
 }
+
+/* ── Admin notification bell (floating over banner) ── */
+.admin-bell-wrap {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+}
+
+.admin-bell-btn {
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.admin-bell-btn:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.admin-bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #D43F25;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 1px 5px;
+  min-width: 14px;
+  text-align: center;
+  border: 1.5px solid #fff;
+}
+
+.admin-bell-dropdown {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  width: 280px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+}
+
+.admin-bell-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #412828;
+  margin: 0 0 8px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.admin-bell-empty {
+  font-size: 11px;
+  color: #9CA3AF;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.admin-bell-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #F9FAFB;
+}
+
+.admin-bell-item:last-child {
+  border-bottom: none;
+}
+
+.admin-bell-item strong {
+  font-size: 11px;
+  color: #412828;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.admin-bell-item p {
+  font-size: 11px;
+  color: #6B7280;
+  margin: 0 0 3px 0;
+  line-height: 1.4;
+}
+
+.admin-bell-item small {
+  font-size: 9px;
+  color: #9CA3AF;
+}

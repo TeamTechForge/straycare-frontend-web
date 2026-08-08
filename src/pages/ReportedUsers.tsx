@@ -56,7 +56,7 @@ export default function ReportedUsers() {
     <div className="home-container">
       <Sidebar />
       <main className="main-content">
-        <div className="reported-users-container">
+        <div className="reported-users-page reported-users-container">
           <Header title="Reported Users & Posts" />
 
           <NavTabs

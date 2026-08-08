@@ -35,18 +35,14 @@ export default function Rescues() {
     let filtered = rescues;
 
     if (statusFilter) {
-      filtered = filtered.filter(
-        (r) => r.status === statusFilter
-      );
+      filtered = filtered.filter((r) => r.status === statusFilter);
     }
 
     if (dateFilter) {
       filtered = filtered.filter(
         (r) =>
           r.createdAt &&
-          new Date(r.createdAt)
-            .toISOString()
-            .startsWith(dateFilter)
+          new Date(r.createdAt).toISOString().startsWith(dateFilter)
       );
     }
 
@@ -55,14 +51,12 @@ export default function Rescues() {
 
   async function fetchRescues() {
     try {
-      const response = await api.get("/api/rescue-cases");
+      const response = await api.get("/api/rescues/all");
 
       setRescues(response.data);
       setFilteredRescues(response.data);
     } catch (err: any) {
-      setError(
-        err.response?.data?.error || err.message
-      );
+      setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
@@ -76,13 +70,9 @@ export default function Rescues() {
 
   const totalCases = rescues.length;
 
-  const pending = rescues.filter(
-    (r) => r.status === "pending"
-  ).length;
+  const pending = rescues.filter((r) => r.status === "pending").length;
 
-  const completed = rescues.filter(
-    (r) => r.status === "completed"
-  ).length;
+  const completed = rescues.filter((r) => r.status === "completed").length;
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -90,6 +80,12 @@ export default function Rescues() {
         return {
           backgroundColor: "#FEF3C7",
           color: "#D97706",
+        };
+
+      case "accepted":
+        return {
+          backgroundColor: "#DBEAFE",
+          color: "#2563EB",
         };
 
       case "completed":
@@ -117,7 +113,7 @@ export default function Rescues() {
       <Sidebar />
 
       <main className="main-content">
-        <div className="rescues-container">
+        <div className="rescues-page rescues-container">
           <Header title="Rescue Case Overview" />
 
           <div className="kpi-cards">
@@ -127,9 +123,7 @@ export default function Rescues() {
             </div>
 
             <div className="kpi-card">
-              <p className="kpi-label">
-                Pending Assignments
-              </p>
+              <p className="kpi-label">Pending Assignments</p>
               <p className="kpi-value">{pending}</p>
             </div>
 
@@ -142,9 +136,7 @@ export default function Rescues() {
           </div>
 
           <div className="filter-box">
-            <p className="filter-title">
-              Filter Cases
-            </p>
+            <p className="filter-title">Filter Cases</p>
 
             <div className="filter-row">
               <div className="filter-field">
@@ -153,9 +145,7 @@ export default function Rescues() {
                 <input
                   type="date"
                   value={dateFilter}
-                  onChange={(e) =>
-                    setDateFilter(e.target.value)
-                  }
+                  onChange={(e) => setDateFilter(e.target.value)}
                 />
               </div>
 
@@ -164,29 +154,17 @@ export default function Rescues() {
 
                 <select
                   value={statusFilter}
-                  onChange={(e) =>
-                    setStatusFilter(e.target.value)
-                  }
+                  onChange={(e) => setStatusFilter(e.target.value)}
                 >
-                  <option value="">
-                    All Statuses
-                  </option>
-                  <option value="pending">
-                    Pending
-                  </option>
-                  <option value="completed">
-                    Completed
-                  </option>
-                  <option value="rejected">
-                    Rejected
-                  </option>
+                  <option value="">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="completed">Completed</option>
+                  <option value="rejected">Rejected</option>
                 </select>
               </div>
 
-              <button
-                className="reset-btn"
-                onClick={handleReset}
-              >
+              <button className="reset-btn" onClick={handleReset}>
                 Reset Filters
               </button>
             </div>
@@ -195,9 +173,7 @@ export default function Rescues() {
           {loading ? (
             <p>Loading rescues...</p>
           ) : error ? (
-            <p style={{ color: "red" }}>
-              {error}
-            </p>
+            <p style={{ color: "red" }}>{error}</p>
           ) : (
             <div className="table-box">
               <table className="rescues-table">
@@ -214,62 +190,57 @@ export default function Rescues() {
 
                 <tbody>
                   {filteredRescues.length > 0 ? (
-                    filteredRescues.map((rescue) => (
-                      <tr key={rescue._id}>
-                        <td>
-                          #{rescue.caseId ||
-                            rescue._id
-                              .slice(-6)
-                              .toUpperCase()}
-                        </td>
+                    filteredRescues.map((rescue) => {
+                      const address =
+                        rescue.rescueLocation?.address ||
+                        rescue.reporterLocation?.address ||
+                        "—";
 
-                        <td>
-                          🐾 {rescue.animalType || "Unknown"}
-                        </td>
+                      return (
+                        <tr key={rescue._id}>
+                          <td>
+                            #{rescue.caseId || rescue._id.slice(-6).toUpperCase()}
+                          </td>
 
-                        <td>
-                          <span
-                            style={{
-                              ...getStatusStyle(
-                                rescue.status
-                              ),
-                              padding: "4px 12px",
-                              borderRadius: "9999px",
-                              fontWeight: "600",
-                              fontSize: "12px",
-                            }}
-                          >
-                            {rescue.status}
-                          </span>
-                        </td>
+                          <td>🐾 {rescue.animalType || "Unknown"}</td>
 
-                        <td>
-                          {rescue.reporterName ||
-                            "Anonymous"}
-                        </td>
+                          <td>
+                            <span
+                              style={{
+                                ...getStatusStyle(rescue.status),
+                                padding: "4px 12px",
+                                borderRadius: "9999px",
+                                fontWeight: "600",
+                                fontSize: "12px",
+                              }}
+                            >
+                              {rescue.status}
+                            </span>
+                          </td>
 
-                        <td>
-                          {rescue.rescueLocation?.address ||
-                            rescue.reporterLocation?.address ||
-                            "—"}
-                        </td>
+                          <td>{rescue.reporterName || "Anonymous"}</td>
 
-                        <td>
-                          {rescue.createdAt
-                            ? new Date(
-                                rescue.createdAt
-                              ).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "short",
-                                  day: "2-digit",
-                                  year: "numeric",
-                                }
-                              )
-                            : "—"}
-                        </td>
-                      </tr>
-                    ))
+                          <td>
+                            <div className="address-scroll" title={address}>
+                              {address}
+                            </div>
+                          </td>
+
+                          <td>
+                            {rescue.createdAt
+                              ? new Date(rescue.createdAt).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    month: "short",
+                                    day: "2-digit",
+                                    year: "numeric",
+                                  }
+                                )
+                              : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td
@@ -288,8 +259,7 @@ export default function Rescues() {
 
               <div className="pagination-row">
                 <span>
-                  Showing {filteredRescues.length} of{" "}
-                  {rescues.length} cases
+                  Showing {filteredRescues.length} of {rescues.length} cases
                 </span>
               </div>
             </div>

@@ -210,6 +210,14 @@
   text-align: center;
 }
 
+/* ── Success ─────────────────────────────────────── */
+.success-message {
+  color: #16A34A;
+  font-size: 0.8rem;
+  margin: 0;
+  text-align: center;
+}
+
 /* ── Login button ────────────────────────────────── */
 .login-btn {
   height: 40px;         /* was 50px */

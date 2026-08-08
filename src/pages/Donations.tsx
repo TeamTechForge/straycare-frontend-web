@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import "../components/TableLayout.css";
 import "./Donations.css";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
@@ -40,7 +39,7 @@ export default function Donations() {
 
   const fetchDonations = async () => {
     try {
-      const res = await api.get("/api/donations/history");
+      const res = await api.get("/api/donations");
 
       setAllDonations(res.data);
       setDonations(res.data);
@@ -120,7 +119,7 @@ export default function Donations() {
       <Sidebar />
 
       <main className="main-content">
-        <div className="donations-container">
+        <div className="donations-page donations-container">
           <Header title="Donation Transactions" />
 
           <div className="kpi-cards">
