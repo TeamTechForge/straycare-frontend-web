@@ -1,8 +1,11 @@
 import "./Sidebar.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import logo from "../assets/LogoNew.png";
 
 export default function Sidebar() {
+  const location = useLocation();
+  const isUsersSection = location.pathname.startsWith("/users");
+
   return (
     <aside className="sidebar">
       <nav>
@@ -14,7 +17,10 @@ export default function Sidebar() {
           </li>
 
           <li>
-            <NavLink to="/users/general" className="nav-link">
+            <NavLink
+              to="/users/general"
+              className={`nav-link ${isUsersSection ? "active" : ""}`}
+            >
               Verify Users
             </NavLink>
           </li>
@@ -46,6 +52,12 @@ export default function Sidebar() {
           <li>
             <NavLink to="/reports/users" className="nav-link">
               Reports
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink to="/support-tickets" className="nav-link">
+              Support
             </NavLink>
           </li>
 

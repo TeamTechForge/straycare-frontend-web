@@ -1,8 +1,8 @@
+import "../auth/Login.css";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/axios";
 import logo from "../assets/LogoNew.png";
-import "../auth/Login.css";
 
 export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState<string>("");
@@ -41,32 +41,18 @@ export default function ResetPassword() {
     try {
       setLoading(true);
 
-      if (isInvite) {
-        const res = await api.post("/api/admins/accept-invite", {
-          token,
-          newPassword,
-        });
+      const res = isInvite
+        ? await api.post("/api/admins/accept-invite", { token, newPassword })
+        : await api.post("/api/admin/reset-password", { token, newPassword });
 
-        setMessage(res.data.message);
-      } else {
-        const res = await api.post("/api/admin/reset-password", {
-          token,
-          newPassword,
-        });
-
-        setMessage(res.data.message);
-      }
-
+      setMessage(res.data.message);
       setError("");
 
       setTimeout(() => {
         navigate("/login");
       }, 3000);
-
     } catch (err: any) {
-      setError(
-        err.response?.data?.error || "Failed. Please try again."
-      );
+      setError(err.response?.data?.error || "Failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -74,122 +60,97 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
-      <div style={{ padding: "40px", textAlign: "center" }}>
-        <p style={{ color: "#D43F25" }}>
-          Invalid or missing token.
-        </p>
-
-        <a href="/login" style={{ color: "#7d5800" }}>
-          Back to Login
-        </a>
+      <div className="login-page">
+        <div className="login-card">
+          <div className="card-form" style={{ flex: 1, textAlign: "center" }}>
+            <p className="error-message">Invalid or missing token.</p>
+            
+              <a href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/login");
+              }}
+              className="forgot-link"
+            >
+              Back to Login
+            </a>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="login-container">
-      <section className="login-left">
-        <div className="logo-circle">
-          <img src={logo} alt="StrayCare Logo" />
-        </div>
-      </section>
+    <div className="login-page">
+      <div className="login-card">
+        <div className="card-form" style={{ flex: 1 }}>
+          <div className="logo-wrap">
+            <img src={logo} alt="StrayCare Logo" />
+          </div>
 
-      <main
-        className="login-right"
-        style={{ justifyContent: "center", padding: "40px" }}
-      >
-        <div style={{ maxWidth: "400px", width: "100%", margin: "0 auto" }}>
+          <div className="login-heading">
+            <h1>{isInvite ? "Set Your Password" : "Reset Password"}</h1>
+            <p>
+              {isInvite
+                ? "Welcome! Set a password to activate your admin account."
+                : "Enter your new password below."}
+            </p>
+          </div>
 
-          <h2 style={{ color: "#412828", marginBottom: "8px" }}>
-            {isInvite ? "Set Your Password" : "Reset Password"}
-          </h2>
+          {message && <p className="success-message">{message} Redirecting to login...</p>}
+          {error && <p className="error-message">{error}</p>}
 
-          <p style={{ color: "#514532", marginBottom: "24px" }}>
-            {isInvite
-              ? "Welcome! Set a password to activate your admin account."
-              : "Enter your new password below."}
-          </p>
-
-          {message && (
-            <div className="alert success">
-              {message} Redirecting to login...
-            </div>
-          )}
-
-          {error && (
-            <div className="alert error">
-              {error}
-            </div>
-          )}
-
-          <form
-            onSubmit={handleSubmit}
-            className="login-form"
-            style={{ padding: 0 }}
-          >
-
-            <div className="password-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter new password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                👁
-              </button>
+          <form className="login-form" onSubmit={handleSubmit}>
+            <div className="input-group">
+              <label>New Password</label>
+              <div className="password-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "🙈" : "👁"}
+                </button>
+              </div>
             </div>
 
-
-            <div className="password-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Confirm new password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
+            <div className="input-group">
+              <label>Confirm Password</label>
+              <div className="password-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
             </div>
 
-
-            <button
-              type="submit"
-              className="login-btn"
-              disabled={loading}
-            >
-              {loading
-                ? "Please wait..."
-                : isInvite
-                ? "Activate Account"
-                : "Reset Password"}
+            <button type="submit" className="login-btn" disabled={loading}>
+              {loading ? "Please wait..." : isInvite ? "Activate Account" : "Reset Password"}
             </button>
-
           </form>
 
-
-          <div style={{ textAlign: "center", marginTop: "16px" }}>
-            <a
-              href="#"
+          <div className="form-footer" style={{ justifyContent: "center", marginTop: "12px" }}>
+            
+              <a href="#"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/login");
               }}
-              style={{
-                color: "#7d5800",
-                textDecoration: "none",
-                fontSize: "0.9rem",
-              }}
+              className="forgot-link"
             >
               Back to Login
             </a>
           </div>
-
         </div>
-      </main>
+      </div>
     </div>
   );
 }

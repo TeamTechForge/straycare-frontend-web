@@ -1,9 +1,9 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import api from "../api/axios";
-import UserNavTabs from "../components/UserNavTabs";
+import NavTabs from "../components/NavTabs";
 import "./UserDocuments.css";
 
 interface User {
@@ -26,11 +26,18 @@ interface Document {
 export default function UserDocuments() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [user, setUser] = useState<User | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [status, setStatus] = useState<string>("");
   const [updating, setUpdating] = useState(false);
+
+  const tabs = [
+    { label: "Users", to: "/users/general" },
+    { label: "Organizations", to: "/users/vets-ngos" },
+    { label: "User Verification", to: location.pathname },
+  ];
 
   useEffect(() => {
     async function fetchData() {
@@ -74,31 +81,32 @@ export default function UserDocuments() {
       <main className="main-content">
         <div className="user-docs-container">
           <Header title="User Management" />
-          <UserNavTabs />
+          <NavTabs tabs={tabs} />
 
-          {/* Organization Details Card */}
           <div className="details-card">
             <div className="details-header">
               <div>
                 <h2>{user.name}</h2>
 
                 <span
-                  className={`role-badge ${
-                    user.role === "Vet" ? "role-vet" : "role-ngo"
-                  }`}
+                  className={
+                    "role-badge " +
+                    (user.role === "Vet" ? "role-vet" : "role-ngo")
+                  }
                 >
                   {user.role}
                 </span>
               </div>
 
               <span
-                className={`status-badge ${
-                  status === "Verified"
+                className={
+                  "status-badge " +
+                  (status === "Verified"
                     ? "status-verified"
                     : status === "Rejected"
                     ? "status-rejected"
-                    : "status-pending"
-                }`}
+                    : "status-pending")
+                }
               >
                 {status}
               </span>
@@ -119,7 +127,6 @@ export default function UserDocuments() {
                       ? "License Number"
                       : "Registration Number"}
                   </span>
-
                   <span className="detail-value">{user.regNumber}</span>
                 </div>
               )}
@@ -134,11 +141,8 @@ export default function UserDocuments() {
               {user.foundedYear && (
                 <div className="detail-item">
                   <span className="detail-label">
-                    {user.role === "Vet"
-                      ? "Experience"
-                      : "Founded Year"}
+                    {user.role === "Vet" ? "Experience" : "Founded Year"}
                   </span>
-
                   <span className="detail-value">{user.foundedYear}</span>
                 </div>
               )}
@@ -153,7 +157,6 @@ export default function UserDocuments() {
               {user.createdAt && (
                 <div className="detail-item">
                   <span className="detail-label">Registered On</span>
-
                   <span className="detail-value">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </span>
@@ -162,7 +165,6 @@ export default function UserDocuments() {
             </div>
           </div>
 
-          {/* Documents Section */}
           <div className="docs-section">
             <h3>Uploaded Documents</h3>
 
@@ -174,12 +176,11 @@ export default function UserDocuments() {
 
                     {isLocalPath(doc.url) ? (
                       <span className="doc-unavailable">
-                        Document stored on mobile device — not accessible from
-                        web
+                        Document stored on mobile device — not accessible from web
                       </span>
                     ) : (
-                      <a
-                        href={doc.url}
+                      
+                        <a href={doc.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="view-btn"
@@ -195,14 +196,13 @@ export default function UserDocuments() {
             </div>
           </div>
 
-          {/* Verify / Reject Buttons */}
           <div className="action-buttons">
             <button
               className="verify-btn"
               onClick={() => handleStatusUpdate("Verified")}
               disabled={updating || status === "Verified"}
             >
-              {status === "Verified" ? "✓ Verified" : "Verify"}
+              {status === "Verified" ? "Verified" : "Verify"}
             </button>
 
             <button
@@ -210,14 +210,14 @@ export default function UserDocuments() {
               onClick={() => handleStatusUpdate("Rejected")}
               disabled={updating || status === "Rejected"}
             >
-              {status === "Rejected" ? "✗ Rejected" : "Reject"}
+              {status === "Rejected" ? "Rejected" : "Reject"}
             </button>
 
             <button
               className="back-btn"
               onClick={() => navigate("/users/vets-ngos")}
             >
-              ← Back
+              Back
             </button>
           </div>
         </div>

@@ -11,6 +11,7 @@ import ReportedUsers from "./pages/ReportedUsers";
 import Rescues from "./pages/Rescues";
 import Settings from "./pages/Settings";
 import Analytics from "./pages/Analytics";
+import SupportTickets from "./pages/SupportTickets";
 import Logout from "./pages/Logout";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -34,6 +35,7 @@ function App() {
         <Route path="/rescues" element={<Rescues />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/analytics" element={<Analytics />} />
+        <Route path="/support-tickets" element={<SupportTickets />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
@@ -42,4 +44,3 @@ function App() {
 }
 
 export default App;
-

@@ -8,14 +8,22 @@ interface Notification {
   _id: string;
   title: string;
   message: string;
-  audience: string;
+  audience: string[] | string;
   createdAt: string;
 }
+
+const AUDIENCE_OPTIONS = [
+  { value: "general_user", label: "General Users" },
+  { value: "volunteer", label: "Volunteers" },
+  { value: "vet", label: "Vets" },
+  { value: "ngo", label: "NGOs" },
+  { value: "admin", label: "Admins" },
+];
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [title, setTitle] = useState<string>("");
-  const [audience, setAudience] = useState<string>("All Users");
+  const [audience, setAudience] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
 
   const fetchNotifications = async () => {
@@ -31,6 +39,12 @@ export default function Notifications() {
     fetchNotifications();
   }, []);
 
+  const toggleAudience = (value: string) => {
+    setAudience((prev) =>
+      prev.includes(value) ? prev.filter((a) => a !== value) : [...prev, value]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -42,7 +56,7 @@ export default function Notifications() {
       });
 
       setTitle("");
-      setAudience("All Users");
+      setAudience([]);
       setMessage("");
 
       fetchNotifications();
@@ -51,12 +65,26 @@ export default function Notifications() {
     }
   };
 
+  const formatAudience = (audience: string[] | string) => {
+    if (!audience || (Array.isArray(audience) && audience.length === 0)) {
+      return "All Users";
+    }
+
+    if (!Array.isArray(audience)) {
+      return audience;
+    }
+
+    return audience
+      .map((a) => AUDIENCE_OPTIONS.find((opt) => opt.value === a)?.label || a)
+      .join(", ");
+  };
+
   return (
     <div className="home-container">
       <Sidebar />
 
       <main className="main-content">
-        <div className="notifications-container">
+        <div className="notifications-page notifications-container">
           <Header title="Admin Notifications" />
 
           <div className="create-notification">
@@ -75,14 +103,28 @@ export default function Notifications() {
 
               <label>
                 Target Audience
-                <select
-                  value={audience}
-                  onChange={(e) => setAudience(e.target.value)}
-                >
-                  <option>All Users</option>
-                  <option>Admins</option>
-                  <option>Volunteers</option>
-                </select>
+
+                <div className="audience-checkboxes">
+                  <label className="audience-option">
+                    <input
+                      type="checkbox"
+                      checked={audience.length === 0}
+                      onChange={() => setAudience([])}
+                    />
+                    All Users
+                  </label>
+
+                  {AUDIENCE_OPTIONS.map((opt) => (
+                    <label className="audience-option" key={opt.value}>
+                      <input
+                        type="checkbox"
+                        checked={audience.includes(opt.value)}
+                        onChange={() => toggleAudience(opt.value)}
+                      />
+                      {opt.label}
+                    </label>
+                  ))}
+                </div>
               </label>
 
               <label>
@@ -108,11 +150,11 @@ export default function Notifications() {
             ) : (
               <ul>
                 {notifications.map((n: Notification) => (
-                  <li key={n._id}>
+                  <li key={n._id} className="notification-item">
                     <strong>{n.title}</strong> — {n.message}
 
                     <span style={{ color: "#777", marginLeft: "10px" }}>
-                      ({n.audience})
+                      ({formatAudience(n.audience)})
                     </span>
 
                     <br />
@@ -130,5 +172,4 @@ export default function Notifications() {
     </div>
   );
 }
-
 

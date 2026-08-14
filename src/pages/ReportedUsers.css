@@ -1,117 +1,118 @@
-.reported-users-container {
-  padding: 24px;
+.reported-users-page.reported-users-container {
+  padding: 22px;
 }
 
-.empty-state {
+.reported-users-page .empty-state {
   background: #fff;
-  border-radius: 12px;
-  padding: 40px;
+  border-radius: 8px;
+  padding: 22px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-top: 24px;
+  margin-top: 13px;
 }
 
-.empty-state p {
+.reported-users-page .empty-state p {
   color: #888;
-  font-size: 16px;
+  font-size: 12px;
 }
 
-.reports-table-box {
+.reported-users-page .reports-table-box {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-top: 24px;
-  overflow: hidden;
+  margin-top: 13px;
+  overflow-x: auto;
 }
 
-.reports-table {
+.reported-users-page .reports-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.reports-table thead {
+.reported-users-page .reports-table thead {
   background: #FFF9E6;
 }
 
-.reports-table th {
-  padding: 14px 16px;
+.reported-users-page .reports-table th {
+  padding: 10px 14px;
   text-align: left;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 600;
   color: #555;
 }
 
-.reports-table td {
-  padding: 14px 16px;
+.reported-users-page .reports-table td {
+  padding: 10px 14px;
+  font-size: 12px;
 }
 
-.reports-table tr {
+.reported-users-page .reports-table tr {
   border-top: 1px solid #f0f0f0;
 }
 
-.mono-id {
+.reported-users-page .mono-id {
   font-family: monospace;
-  font-size: 12px;
+  font-size: 10px;
 }
 
-.report-description {
-  font-size: 13px;
+.reported-users-page .report-description {
+  font-size: 11px;
   color: #666;
 }
 
-.status-badge {
-  padding: 4px 12px;
+.reported-users-page .status-badge {
+  padding: 3px 10px;
   border-radius: 9999px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
 }
 
-.status-resolved {
+.reported-users-page .status-resolved {
   background: #DCFCE7;
   color: #16A34A;
 }
 
-.status-pending {
+.reported-users-page .status-pending {
   background: #FEF9C3;
   color: #854D0E;
 }
 
-.resolved-label {
-  font-size: 12px;
+.reported-users-page .resolved-label {
+  font-size: 10px;
   color: #999;
 }
 
-.action-buttons {
+.reported-users-page .action-buttons {
   display: flex;
-  gap: 6px;
+  gap: 5px;
 }
 
-.action-btn {
-  padding: 6px 10px;
-  border-radius: 6px;
+.reported-users-page .action-btn {
+  padding: 5px 8px;
+  border-radius: 5px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 10px;
   cursor: pointer;
   border: none;
 }
 
-.action-btn:disabled {
+.reported-users-page .action-btn:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.btn-dismiss {
+.reported-users-page .btn-dismiss {
   border: 1px solid #ccc;
   background: #fff;
   color: #555;
 }
 
-.btn-warn {
+.reported-users-page .btn-warn {
   background: #FEF3C7;
   color: #D97706;
 }
 
-.btn-suspend {
+.reported-users-page .btn-suspend {
   background: #FCDCDD;
   color: #D43F25;
 }

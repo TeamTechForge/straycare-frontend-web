@@ -3,10 +3,10 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import api from "../api/axios";
 import {
-  LineChart,
-  Line,
+  ComposedChart,
   BarChart,
   Bar,
+  Line,
   PieChart,
   Pie,
   Cell,
@@ -19,14 +19,28 @@ import {
 } from "recharts";
 import "./Analytics.css";
 
-const COLORS = [
-  "#F5A623",
-  "#4CAF50",
-  "#2196F3",
-  "#E53935",
-  "#9C27B0",
-  "#00BCD4",
+
+const CATEGORY_COLORS = [
+  "#D97706",
+  "#44546B",
+  "#8B5E3C",
+  "#6B8F71",
+  "#A65D57",
+  "#6D6875",
 ];
+
+const STATUS_COLORS: Record<string, string> = {
+  Success: "#3B8F6B",
+  Failed: "#C1533F",
+  Verified: "#3B8F6B",
+  Rejected: "#C1533F",
+  Pending: "#D97706",
+  pending: "#D97706",
+  completed: "#3B8F6B",
+  accepted: "#4A6FA5",
+  rejected: "#C1533F",
+  cancelled: "#8A8A85",
+};
 
 interface Donation {
   timestamp: string;
@@ -67,9 +81,9 @@ export default function Analytics() {
   const fetchData = async () => {
     try {
       const [donRes, userRes, rescueRes] = await Promise.all([
-        api.get("/api/donations/history"),
+        api.get("/api/donations"),
         api.get("/api/users/all").catch(() => ({ data: [] })),
-        api.get("/api/rescue-cases").catch(() => ({ data: [] })),
+        api.get("/api/rescues/all").catch(() => ({ data: [] })),
       ]);
 
       setDonations(donRes.data || []);
@@ -113,7 +127,12 @@ export default function Analytics() {
 
     donations.forEach((d) => {
       if (d.status === "SUCCESS") {
-        const category = d.category || "General";
+        let category = d.category || "General";
+
+    
+        if (category === "Shelter") category = "Support Shelter";
+        if (category === "Vet Clinic") category = "Support Vet Clinic";
+
         map[category] = (map[category] || 0) + 1;
       }
     });
@@ -178,7 +197,7 @@ export default function Analytics() {
       <Sidebar />
 
       <main className="main-content">
-        <div className="analytics-container">
+        <div className="analytics-page analytics-container">
           <Header title="System Analytics" />
 
           <div className="kpi-row">
@@ -200,22 +219,32 @@ export default function Analytics() {
 
           <div className="charts-row">
             <div className="chart-card wide">
-              <h3 className="chart-title">Donation Amount Over Time</h3>
+              <h3 className="chart-title">Donations Over Time (Amount &amp; Count)</h3>
 
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={donationsByMonth()}>
+                <ComposedChart data={donationsByMonth()}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
-                  <YAxis />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
                   <Tooltip />
                   <Legend />
+                  <Bar
+                    yAxisId="right"
+                    dataKey="count"
+                    name="Donations"
+                    fill="#D97706"
+                    radius={[4, 4, 0, 0]}
+                  />
                   <Line
+                    yAxisId="left"
                     type="monotone"
                     dataKey="total"
-                    stroke="#F5A623"
+                    name="Amount (Rs.)"
+                    stroke="#44546B"
                     strokeWidth={2}
                   />
-                </LineChart>
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
 
@@ -231,8 +260,11 @@ export default function Analytics() {
                     outerRadius={80}
                     label
                   >
-                    {donationStatus().map((_, index) => (
-                      <Cell key={index} fill={COLORS[index]} />
+                    {donationStatus().map((entry, index) => (
+                      <Cell
+                        key={index}
+                        fill={STATUS_COLORS[entry.name] || CATEGORY_COLORS[index]}
+                      />
                     ))}
                   </Pie>
 
@@ -255,29 +287,15 @@ export default function Analytics() {
                   <Tooltip />
                   <Legend />
 
-                  <Bar dataKey="value" name="Donations" />
+                  <Bar dataKey="value" name="Donations" radius={[4, 4, 0, 0]}>
+                    {donationsByCategory().map((_, index) => (
+                      <Cell key={index} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="chart-card">
-              <h3 className="chart-title">Number of Donations Per Month</h3>
-
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={donationsByMonth()}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-
-                  <Bar dataKey="count" name="Count" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="charts-row">
             <div className="chart-card">
               <h3 className="chart-title">Users by Role</h3>
 
@@ -293,7 +311,7 @@ export default function Analytics() {
                     {usersByRole().map((_, index) => (
                       <Cell
                         key={index}
-                        fill={COLORS[index % COLORS.length]}
+                        fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]}
                       />
                     ))}
                   </Pie>
@@ -303,7 +321,9 @@ export default function Analytics() {
                 </PieChart>
               </ResponsiveContainer>
             </div>
+          </div>
 
+          <div className="charts-row">
             <div className="chart-card">
               <h3 className="chart-title">Rescue Cases by Status</h3>
 
@@ -315,7 +335,14 @@ export default function Analytics() {
                   <Tooltip />
                   <Legend />
 
-                  <Bar dataKey="value" name="Cases" />
+                  <Bar dataKey="value" name="Cases" radius={[4, 4, 0, 0]}>
+                    {rescuesByStatus().map((entry, index) => (
+                      <Cell
+                        key={index}
+                        fill={STATUS_COLORS[entry.name] || CATEGORY_COLORS[index]}
+                      />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>

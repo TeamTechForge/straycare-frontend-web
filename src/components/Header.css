@@ -1,12 +1,12 @@
 .header {
   width: 100%;
   background: #F2F2F2;
-  padding: 20px 40px;
+  padding: 16px 32px;
   box-sizing: border-box;
 }
 
 .header-title {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 1.28rem;
   color: #412828;
 }

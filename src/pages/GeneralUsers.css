@@ -1,144 +1,121 @@
-.users-container {
-  padding: 40px;
+.general-users-page.users-container {
+  padding: 22px;
   background: #FAFAFA;
   min-height: 100vh;
   box-sizing: border-box;
 }
 
-.kpi-cards {
+.general-users-page .kpi-cards {
   display: flex;
-  gap: 24px;
-  margin-bottom: 30px;
-}
-
-.kpi-card {
-  flex: 1;
-  background: #fff;
-  border: 1px solid rgba(255, 183, 0, 0.1);
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
-  border-radius: 12px;
-  padding: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.kpi-label {
-  font-size: 14px;
-  color: #6B7280;
-  margin-bottom: 4px;
-}
-
-.kpi-value {
-  font-size: 30px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.filter-box {
-  background: #fff;
-  border: 1px solid rgba(255, 183, 0, 0.1);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 24px;
-}
-
-.filter-title {
-  font-size: 18px;
-  font-weight: 600;
+  gap: 13px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.general-users-page .filter-box {
+  background: #fff;
+  border: 1px solid rgba(255, 183, 0, 0.1);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.general-users-page .filter-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
   color: #412828;
 }
 
-.filter-row {
+.general-users-page .filter-row {
   display: flex;
-  gap: 16px;
+  gap: 8px;
   align-items: flex-end;
   flex-wrap: wrap;
 }
 
-.filter-field {
+.general-users-page .filter-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
-.filter-field label {
+.general-users-page .filter-field label {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 11px;
   color: #412828;
 }
 
-.filter-field input,
-.filter-field select {
-  padding: 8px 12px;
+.general-users-page .filter-field input,
+.general-users-page .filter-field select {
+  padding: 5px 8px;
   border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 11px;
   background: #fff;
 }
 
-.reset-btn {
+.general-users-page .reset-btn {
   background: #ccc;
   border: none;
-  padding: 8px 20px;
-  border-radius: 12px;
+  padding: 5px 14px;
+  border-radius: 6px;
   font-weight: 700;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 11px;
   color: #412828;
 }
 
-.apply-btn {
+.general-users-page .apply-btn {
   background: #FFB700;
   border: none;
-  padding: 8px 20px;
-  border-radius: 12px;
+  padding: 5px 14px;
+  border-radius: 6px;
   font-weight: 700;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 11px;
   color: #000;
 }
 
-.table-box {
+.general-users-page .table-box {
   background: #fff;
   border: 1px solid rgba(255, 183, 0, 0.1);
-  border-radius: 12px;
-  overflow: hidden;
+  border-radius: 6px;
+  overflow-x: auto;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.users-table {
+.general-users-page .users-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.users-table th {
+.general-users-page .users-table th {
   background: #F9FAFB;
-  padding: 16px 24px;
+  padding: 10px 14px;
   text-align: left;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
   color: #6B7280;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
   border-bottom: 1px solid #F3F4F6;
 }
 
-.users-table td {
-  padding: 20px 24px;
-  font-size: 14px;
+.general-users-page .users-table td {
+  padding: 12px 14px;
+  font-size: 12px;
   color: #374151;
   border-top: 1px solid #F9FAFB;
 }
 
-.users-table tr:hover {
+.general-users-page .users-table tr:hover {
   background: #FFFBF0;
 }
 
-.pagination-row {
-  padding: 20px 24px;
+.general-users-page .pagination-row {
+  padding: 12px 14px;
   border-top: 1px solid #F3F4F6;
-  font-size: 14px;
+  font-size: 12px;
   color: #6B7280;
 }

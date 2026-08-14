@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import api from "../api/axios";
-import UserNavTabs from "../components/UserNavTabs";
+import NavTabs from "../components/NavTabs";
 import "./GeneralUsers.css";
 
 interface User {
@@ -13,48 +14,47 @@ interface User {
 }
 
 export default function GeneralUsers() {
-  // Stores full list of filtered users from API (base dataset)
   const [allUsers, setAllUsers] = useState<User[]>([]);
-
-  // Stores users currently displayed in the table (after filtering)
   const [users, setUsers] = useState<User[]>([]);
-
-  // Stores filter state (currently only role filter)
   const [filters, setFilters] = useState({ role: "All" });
+  const location = useLocation();
 
-  // Fetch users from backend API
+  const isVerificationPage =
+    location.pathname.includes("/users/") &&
+    location.pathname.includes("/documents");
+
+  const tabs = [
+    { label: "Users", to: "/users/general" },
+    { label: "Organizations", to: "/users/vets-ngos" },
+    isVerificationPage
+      ? { label: "User Verification", to: location.pathname }
+      : { label: "User Verification", disabled: true },
+  ];
+
   const fetchUsers = async () => {
     try {
       const res = await api.get("/api/users/all");
 
-      // Keep only relevant roles for this tab
-      const generalTabUsers = res.data.filter(
-        (u: User) =>
-          ["General User", "Rescuer", "Volunteer"].includes(u.role)
+      const generalTabUsers = res.data.filter((u: User) =>
+        ["General User", "Rescuer", "Volunteer"].includes(u.role)
       );
 
-      // Save original dataset
       setAllUsers(generalTabUsers);
-
-      // Initialize displayed dataset
       setUsers(generalTabUsers);
     } catch (err) {
       console.error("Failed to fetch users:", err);
     }
   };
 
-  // Runs once when component mounts (page load)
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Reset filters and restore full dataset
   const handleReset = () => {
     setFilters({ role: "All" });
     setUsers(allUsers);
   };
 
-  // Badge colors per role
   const getRoleStyle = (role: string) => {
     switch (role) {
       case "General User":
@@ -73,10 +73,10 @@ export default function GeneralUsers() {
       <Sidebar />
 
       <main className="main-content">
-        <div className="users-container">
+        <div className="general-users-page users-container">
           <Header title="User Management" />
 
-          <UserNavTabs />
+          <NavTabs tabs={tabs} />
 
           <div className="filter-box">
             <p className="filter-title">Filter Users</p>
@@ -126,28 +126,18 @@ export default function GeneralUsers() {
               <tbody>
                 {users.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={4}
-                      style={{ textAlign: "center", padding: "20px" }}
-                    >
+                    <td colSpan={4} style={{ textAlign: "center", padding: "20px" }}>
                       No users found.
                     </td>
                   </tr>
                 ) : (
                   users.map((user: User) => (
                     <tr key={user._id}>
-                      <td
-                        style={{
-                          fontFamily: "monospace",
-                          fontWeight: "bold",
-                        }}
-                      >
+                      <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
                         {user._id}
                       </td>
-
                       <td>{user.name}</td>
                       <td>{user.email}</td>
-
                       <td>
                         <span
                           style={{

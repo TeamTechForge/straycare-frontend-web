@@ -23,7 +23,7 @@
 .banner {
   position: relative;
   width: 100%;
-  height: 450px;
+  height: clamp(230px, 30vw, 340px);
   overflow: visible;
   flex-shrink: 0;
   background: none;
@@ -36,7 +36,7 @@
   width: 100%;
   height: 100%;
   background-size: cover;
-  background-position: center;
+  background-position: center 25%;
   background-repeat: no-repeat;
   opacity: 0;
   transition: opacity 0.9s ease-in-out;
@@ -49,7 +49,7 @@
 /* ── Wave ────────────────────────────────────────── */
 .banner-curve {
   position: absolute;
-  bottom: -55px;
+  bottom: -18px;
   left: 0;
   width: 100%;
   z-index: 2;
@@ -59,22 +59,22 @@
 .banner-curve svg {
   display: block;
   width: 100%;
-  height: 140px;
+  height: 62px;
 }
 
 /* ── Dots ────────────────────────────────────────── */
 .banner-dots {
   position: absolute;
-  bottom: 90px;
-  right: 24px;
+  bottom: 36px;
+  right: 14px;
   display: flex;
-  gap: 7px;
+  gap: 4px;
   z-index: 4;
 }
 
 .banner-dot {
-  width: 7px;
-  height: 7px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.5);
   border: none;
@@ -90,24 +90,26 @@
 
 /* ── Card grid ───────────────────────────────────── */
 .action-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 290px));
-  gap: 50px;
-  padding: 90px 80px 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 18px 20px 22px 52px;   
 }
 
 /* ── Individual card ─────────────────────────────── */
 .action-card {
   background: #ffffff;
   border: 0.5px solid #e5e0d8;
-  border-radius: 14px;
-  padding: 36px 26px;
+  border-radius: 10px;
+  padding: 16px 14px;
   text-decoration: none;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 20px;
-  min-height: 220px;
+  gap: 7px;
+  width: 100%;
+  max-width: 175px;
+  min-height: 175px;
   position: relative;
   transition: border-color 0.18s ease, background 0.18s ease, transform 0.15s ease;
 }
@@ -120,10 +122,10 @@
 
 /* ── Icon box ────────────────────────────────────── */
 .card-icon-wrap {
-  width: 74px;
-  height: 74px;
+  width: 36px;
+  height: 36px;
   background: #faeeda;
-  border-radius: 14px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -131,8 +133,8 @@
 }
 
 .card-icon {
-  width: 42px;
-  height: 42px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
 }
 
@@ -140,28 +142,28 @@
 .card-text {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 3px;
 }
 
 .card-label {
-  font-size: 19px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #2c1a0e;
   line-height: 1.2;
 }
 
 .card-desc {
-  font-size: 14px;
+  font-size: 10.5px;
   color: #999;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 /* ── Arrow ───────────────────────────────────────── */
 .card-arrow {
   position: absolute;
-  top: 22px;
-  right: 22px;
-  font-size: 20px;
+  top: 11px;
+  right: 11px;
+  font-size: 14px;
   color: #d0c8be;
   line-height: 1;
   transition: color 0.18s ease;
@@ -169,4 +171,104 @@
 
 .action-card:hover .card-arrow {
   color: #ef9f27;
+}
+
+/* ── Admin notification bell (floating over banner) ── */
+.admin-bell-wrap {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+}
+
+.admin-bell-btn {
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.admin-bell-btn:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.admin-bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #D43F25;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 1px 5px;
+  min-width: 14px;
+  text-align: center;
+  border: 1.5px solid #fff;
+}
+
+.admin-bell-dropdown {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  width: 280px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+}
+
+.admin-bell-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #412828;
+  margin: 0 0 8px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.admin-bell-empty {
+  font-size: 11px;
+  color: #9CA3AF;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.admin-bell-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #F9FAFB;
+}
+
+.admin-bell-item:last-child {
+  border-bottom: none;
+}
+
+.admin-bell-item strong {
+  font-size: 11px;
+  color: #412828;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.admin-bell-item p {
+  font-size: 11px;
+  color: #6B7280;
+  margin: 0 0 3px 0;
+  line-height: 1.4;
+}
+
+.admin-bell-item small {
+  font-size: 9px;
+  color: #9CA3AF;
 }

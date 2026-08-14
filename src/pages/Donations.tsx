@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./Donations.css";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import KpiCard from "../components/KpiCard";
 import api from "../api/axios";
 
 interface Donation {
@@ -38,7 +39,7 @@ export default function Donations() {
 
   const fetchDonations = async () => {
     try {
-      const res = await api.get("/api/donations/history");
+      const res = await api.get("/api/donations");
 
       setAllDonations(res.data);
       setDonations(res.data);
@@ -118,53 +119,32 @@ export default function Donations() {
       <Sidebar />
 
       <main className="main-content">
-        <div className="donations-container">
+        <div className="donations-page donations-container">
           <Header title="Donation Transactions" />
 
           <div className="kpi-cards">
-            <div className="kpi-card">
-              <p className="kpi-label">Total Donations</p>
-              <p className="kpi-value">
-                {allDonations.length}
-              </p>
-            </div>
+            <KpiCard label="Total Donations" value={allDonations.length} />
 
-            <div className="kpi-card">
-              <p className="kpi-label">
-                Total Collected (Success)
-              </p>
-              <p className="kpi-value">
-                Rs. {successTotal.toLocaleString()}
-              </p>
-            </div>
+            <KpiCard
+              label="Total Collected (Success)"
+              value={`Rs. ${successTotal.toLocaleString()}`}
+            />
 
-            <div className="kpi-card">
-              <p className="kpi-label">Successful</p>
-              <p
-                className="kpi-value"
-                style={{ color: "green" }}
-              >
-                {
-                  allDonations.filter(
-                    (d) => d.status === "SUCCESS"
-                  ).length
-                }
-              </p>
-            </div>
+            <KpiCard
+              label="Successful"
+              value={
+                allDonations.filter((d) => d.status === "SUCCESS").length
+              }
+              valueColor="green"
+            />
 
-            <div className="kpi-card">
-              <p className="kpi-label">Failed</p>
-              <p
-                className="kpi-value"
-                style={{ color: "red" }}
-              >
-                {
-                  allDonations.filter(
-                    (d) => d.status === "FAILED"
-                  ).length
-                }
-              </p>
-            </div>
+            <KpiCard
+              label="Failed"
+              value={
+                allDonations.filter((d) => d.status === "FAILED").length
+              }
+              valueColor="red"
+            />
           </div>
 
           <div className="filter-box">

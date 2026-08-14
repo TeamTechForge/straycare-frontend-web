@@ -1,8 +1,8 @@
+import "../auth/Login.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import logo from "../assets/LogoNew.png";
-import "../auth/Login.css";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState<string>("");
@@ -12,9 +12,7 @@ export default function ForgotPassword() {
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!email) {
@@ -25,161 +23,63 @@ export default function ForgotPassword() {
     try {
       setLoading(true);
 
-      const res = await api.post("/api/admin/forgot-password", {
-        email,
-      });
+      const res = await api.post("/api/admin/forgot-password", { email });
 
       setMessage(res.data.message);
       setError("");
-
     } catch (err: any) {
-
-      setError(
-        err.response?.data?.error ||
-        "Failed to send reset email."
-      );
-
+      setError(err.response?.data?.error || "Failed to send reset email.");
     } finally {
-
       setLoading(false);
-
     }
   };
 
-
   return (
-    <div className="login-container">
+    <div className="login-page">
+      <div className="login-card">
+        <div className="card-form" style={{ flex: 1 }}>
+          <div className="logo-wrap">
+            <img src={logo} alt="StrayCare Logo" />
+          </div>
 
-      <section className="login-left">
-        <div className="logo-circle">
-          <img src={logo} alt="StrayCare Logo" />
-        </div>
-      </section>
+          <div className="login-heading">
+            <h1>Forgot Password</h1>
+            <p>Enter your admin email and we'll send you a reset link.</p>
+          </div>
 
+          {message && <p className="success-message">{message}</p>}
+          {error && <p className="error-message">{error}</p>}
 
-      <main
-        className="login-right"
-        style={{
-          justifyContent: "center",
-          padding: "40px",
-        }}
-      >
-
-        <div
-          style={{
-            maxWidth: "400px",
-            width: "100%",
-            margin: "0 auto",
-          }}
-        >
-
-          <h2
-            style={{
-              color: "#412828",
-              marginBottom: "8px",
-            }}
-          >
-            Forgot Password
-          </h2>
-
-
-          <p
-            style={{
-              color: "#514532",
-              marginBottom: "24px",
-            }}
-          >
-            Enter your admin email and we'll send you a reset link.
-          </p>
-
-
-          {message && (
-            <div
-              style={{
-                background: "#DCFCE7",
-                color: "#16A34A",
-                padding: "12px 16px",
-                borderRadius: "8px",
-                marginBottom: "16px",
-                fontWeight: "600",
-              }}
-            >
-              {message}
+          <form className="login-form" onSubmit={handleSubmit}>
+            <div className="input-group">
+              <label>Email</label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-          )}
 
-
-          {error && (
-            <div
-              style={{
-                background: "#FCDCDD",
-                color: "#D43F25",
-                padding: "12px 16px",
-                borderRadius: "8px",
-                marginBottom: "16px",
-                fontWeight: "600",
-              }}
-            >
-              {error}
-            </div>
-          )}
-
-
-          <form
-            onSubmit={handleSubmit}
-            className="login-form"
-            style={{ padding: 0 }}
-          >
-
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-
-
-            <button
-              type="submit"
-              className="login-btn"
-              disabled={loading}
-            >
+            <button type="submit" className="login-btn" disabled={loading}>
               {loading ? "Sending..." : "Send Reset Link"}
             </button>
-
-
           </form>
 
-
-          <div
-            style={{
-              textAlign: "center",
-              marginTop: "16px",
-            }}
-          >
-
-            <a
-              href="#"
+          <div className="form-footer" style={{ justifyContent: "center", marginTop: "12px" }}>
+            
+              <a href="#"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/login");
               }}
-              style={{
-                color: "#7d5800",
-                textDecoration: "none",
-                fontSize: "0.9rem",
-              }}
+              className="forgot-link"
             >
               Back to Login
             </a>
-
           </div>
-
-
         </div>
-
-      </main>
-
+      </div>
     </div>
   );
 }
