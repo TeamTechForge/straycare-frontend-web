@@ -276,7 +276,8 @@ export default function Settings() {
           <div className="card">
             <h3 className="card-title">Admin Management</h3>
 
-            <table className="admin-table">
+            <div className="admin-table-wrap">
+              <table className="admin-table">
               <tbody>
                 {admins.map((admin) => (
                   <tr key={admin._id}>
@@ -297,7 +298,8 @@ export default function Settings() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
 
             <form onSubmit={handleInviteAdmin}>
               <div className="form-group">

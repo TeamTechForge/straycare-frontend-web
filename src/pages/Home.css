@@ -2,13 +2,15 @@
 .home-container {
   display: flex;
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   font-family: "Segoe UI", sans-serif;
   background-color: #f7f5f0;
 }
 
 .main-content {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -17,6 +19,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
 }
 
 /* ── Banner ──────────────────────────────────────── */
@@ -24,7 +27,7 @@
   position: relative;
   width: 100%;
   height: clamp(230px, 30vw, 340px);
-  overflow: visible;
+  overflow: hidden;
   flex-shrink: 0;
   background: none;
 }
@@ -90,10 +93,10 @@
 
 /* ── Card grid ───────────────────────────────────── */
 .action-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  padding: 18px 20px 22px 52px;   
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 22px);
+  padding: 24px clamp(18px, 4vw, 52px) 32px;
 }
 
 /* ── Individual card ─────────────────────────────── */
@@ -108,7 +111,7 @@
   align-items: flex-start;
   gap: 7px;
   width: 100%;
-  max-width: 175px;
+  max-width: none;
   min-height: 175px;
   position: relative;
   transition: border-color 0.18s ease, background 0.18s ease, transform 0.15s ease;
@@ -271,4 +274,29 @@
 .admin-bell-item small {
   font-size: 9px;
   color: #9CA3AF;
+}
+
+@media (max-width: 1050px) {
+  .action-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .banner {
+    height: 220px;
+  }
+
+  .action-grid {
+    grid-template-columns: 1fr;
+    padding: 20px 14px 28px;
+  }
+
+  .action-card {
+    min-height: 140px;
+  }
+
+  .admin-bell-dropdown {
+    width: min(280px, calc(100vw - 132px));
+  }
 }

@@ -23,6 +23,7 @@ export default function SupportTickets() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   useEffect(() => {
     fetchTickets();
@@ -71,8 +72,13 @@ export default function SupportTickets() {
         )
       );
       setReplyDrafts((prev) => ({ ...prev, [id]: "" }));
-    } catch (err) {
+      setFeedback({ type: "success", message: "Reply saved and emailed to the ticket sender." });
+    } catch (err: any) {
       console.error("Failed to send reply:", err);
+      setFeedback({
+        type: "error",
+        message: err.response?.data?.error || "Failed to send the support reply.",
+      });
     } finally {
       setUpdatingId(null);
     }
@@ -100,6 +106,12 @@ export default function SupportTickets() {
       <main className="main-content">
         <div className="support-page support-container">
           <Header title="Support Tickets" />
+
+          {feedback && (
+            <div className={`support-feedback ${feedback.type}`} role="status">
+              {feedback.message}
+            </div>
+          )}
 
           {loading ? (
             <p>Loading support tickets...</p>

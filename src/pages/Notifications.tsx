@@ -30,6 +30,22 @@ export default function Notifications() {
     try {
       const res = await api.get("/api/admin-notifications");
       setNotifications(res.data);
+
+      const adminNotifications = (res.data || []).filter((n: Notification) =>
+        Array.isArray(n.audience)
+          ? n.audience.includes("admin")
+          : n.audience === "Admins"
+      );
+      if (adminNotifications.length > 0) {
+        const newestTimestamp = Math.max(
+          ...adminNotifications.map((n: Notification) => new Date(n.createdAt).getTime())
+        );
+        const adminId = localStorage.getItem("adminId") || "current";
+        localStorage.setItem(
+          `adminNotificationsLastSeen:${adminId}`,
+          new Date(newestTimestamp).toISOString()
+        );
+      }
     } catch (err) {
       console.error("Failed to fetch admin notifications:", err);
     }
@@ -87,14 +103,19 @@ export default function Notifications() {
         <div className="notifications-page notifications-container">
           <Header title="Admin Notifications" />
 
-          <div className="create-notification">
-            <h3>Create New Admin Notification</h3>
+          <div className="notifications-grid">
+          <section className="create-notification">
+            <div className="notification-section-heading">
+              <h3>Create notification</h3>
+              <p>Send an announcement to selected StrayCare users.</p>
+            </div>
 
             <form onSubmit={handleSubmit}>
               <label>
                 Notification Title
                 <input
                   type="text"
+                  placeholder="Enter a clear notification title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
@@ -130,6 +151,7 @@ export default function Notifications() {
               <label>
                 Message Content
                 <textarea
+                  placeholder="Write the notification message"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   required
@@ -137,13 +159,16 @@ export default function Notifications() {
               </label>
 
               <button type="submit" className="send-btn">
-                Send Notification &gt;
+                Send notification
               </button>
             </form>
-          </div>
+          </section>
 
-          <div className="previous-notifications">
-            <h3>Previously Sent Admin Notifications</h3>
+          <section className="previous-notifications">
+            <div className="notification-section-heading">
+              <h3>Sent notifications</h3>
+              <p>Review announcements sent from the dashboard.</p>
+            </div>
 
             {notifications.length === 0 ? (
               <p>No admin notifications sent yet.</p>
@@ -166,6 +191,7 @@ export default function Notifications() {
                 ))}
               </ul>
             )}
+          </section>
           </div>
         </div>
       </main>

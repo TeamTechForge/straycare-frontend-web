@@ -189,7 +189,30 @@ export default function Analytics() {
     .reduce((acc, d) => acc + Number(d.amount || 0), 0);
 
   if (loading) {
-    return <div className="analytics-loading">Loading analytics...</div>;
+    return (
+      <div className="home-container">
+        <Sidebar />
+        <main className="main-content">
+          <div className="analytics-page analytics-container">
+            <Header title="System Analytics" />
+            <div className="analytics-loading" role="status" aria-live="polite">
+              <div className="analytics-loader-mark" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </div>
+              <h2>Preparing your analytics</h2>
+              <p>Collecting the latest users, rescues, and donation insights.</p>
+              <div className="analytics-skeleton-grid" aria-hidden="true">
+                {[0, 1, 2, 3].map((item) => (
+                  <div className="analytics-skeleton-card" key={item} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (

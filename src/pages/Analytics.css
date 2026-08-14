@@ -1,5 +1,8 @@
 .analytics-page.analytics-container {
-  padding: 22px;
+  padding: clamp(14px, 2.5vw, 24px);
+  min-height: 100vh;
+  background: #f7f5f0;
+  box-sizing: border-box;
 }
 
 .analytics-page .kpi-row {
@@ -47,7 +50,7 @@
   padding: 13px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   flex: 1;
-  min-width: 260px;
+  min-width: min(260px, 100%);
 }
 
 .analytics-page .chart-card.wide {
@@ -55,7 +58,7 @@
 }
 
 .analytics-page .chart-card.narrow {
-  min-width: 220px;
+  min-width: min(220px, 100%);
 }
 
 .analytics-page .chart-title {
@@ -66,6 +69,83 @@
 }
 
 .analytics-page .analytics-loading {
-  padding: 22px;
+  min-height: 420px;
+  padding: clamp(32px, 6vw, 72px) 24px;
   color: #412828;
+  background: linear-gradient(145deg, #fff 0%, #fffaf0 100%);
+  border: 1px solid #eee8df;
+  border-radius: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.analytics-loading h2 {
+  margin: 18px 0 6px;
+  font-size: clamp(18px, 2.5vw, 24px);
+}
+
+.analytics-loading p {
+  margin: 0;
+  color: #7a6b65;
+  font-size: 13px;
+}
+
+.analytics-loader-mark {
+  height: 48px;
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+}
+
+.analytics-loader-mark span {
+  width: 9px;
+  border-radius: 999px;
+  background: #f5a623;
+  animation: analytics-bars 1s ease-in-out infinite;
+}
+
+.analytics-loader-mark span:nth-child(1) { height: 24px; }
+.analytics-loader-mark span:nth-child(2) { height: 42px; animation-delay: 0.14s; }
+.analytics-loader-mark span:nth-child(3) { height: 32px; animation-delay: 0.28s; }
+
+.analytics-skeleton-grid {
+  width: min(680px, 100%);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 34px;
+}
+
+.analytics-skeleton-card {
+  height: 68px;
+  border-radius: 9px;
+  background: linear-gradient(90deg, #f3ede3 25%, #fff8ea 50%, #f3ede3 75%);
+  background-size: 200% 100%;
+  animation: analytics-shimmer 1.4s linear infinite;
+}
+
+@keyframes analytics-bars {
+  0%, 100% { transform: scaleY(0.55); opacity: 0.55; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes analytics-shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 700px) {
+  .analytics-skeleton-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analytics-loader-mark span,
+  .analytics-skeleton-card {
+    animation: none;
+  }
 }

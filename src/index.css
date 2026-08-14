@@ -6,9 +6,24 @@
   background-color: #ffffff;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+
+#root {
   min-height: 100vh;
 }
 
