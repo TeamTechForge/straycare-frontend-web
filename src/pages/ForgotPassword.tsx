@@ -25,8 +25,12 @@ export default function ForgotPassword() {
 
       const res = await api.post("/api/admin/forgot-password", { email });
 
-      setMessage(res.data.message);
+      setMessage(res.data.message + " Redirecting...");
       setError("");
+      
+      setTimeout(() => {
+        navigate("/reset-password");
+      }, 1500);
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to send reset email.");
     } finally {
@@ -44,7 +48,7 @@ export default function ForgotPassword() {
 
           <div className="login-heading">
             <h1>Forgot Password</h1>
-            <p>Enter your admin email and we'll send you a reset link.</p>
+            <p>Enter your admin email and we'll send you a 6-digit reset code.</p>
           </div>
 
           {message && <p className="success-message">{message}</p>}
@@ -62,7 +66,7 @@ export default function ForgotPassword() {
             </div>
 
             <button type="submit" className="login-btn" disabled={loading}>
-              {loading ? "Sending..." : "Send Reset Link"}
+              {loading ? "Sending..." : "Send Reset Code"}
             </button>
           </form>
 
