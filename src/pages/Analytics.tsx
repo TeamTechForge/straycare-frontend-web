@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import LoadingState from "../components/LoadingState";
 import api from "../api/axios";
 import {
   ComposedChart,
@@ -195,20 +196,7 @@ export default function Analytics() {
         <main className="main-content">
           <div className="analytics-page analytics-container">
             <Header title="System Analytics" />
-            <div className="analytics-loading" role="status" aria-live="polite">
-              <div className="analytics-loader-mark" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-              </div>
-              <h2>Preparing your analytics</h2>
-              <p>Collecting the latest users, rescues, and donation insights.</p>
-              <div className="analytics-skeleton-grid" aria-hidden="true">
-                {[0, 1, 2, 3].map((item) => (
-                  <div className="analytics-skeleton-card" key={item} />
-                ))}
-              </div>
-            </div>
+            <LoadingState label="Loading analytics..." />
           </div>
         </main>
       </div>

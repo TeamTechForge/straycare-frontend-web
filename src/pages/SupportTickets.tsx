@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import LoadingState from "../components/LoadingState";
 import api from "../api/axios";
+import { confirmSensitiveAction } from "../utils/dashboardPreferences";
 import "./SupportTickets.css";
 
 interface Ticket {
@@ -41,6 +43,13 @@ export default function SupportTickets() {
   };
 
   const handleStatusChange = async (id: string, status: Ticket["status"]) => {
+    if (
+      (status === "Closed" || status === "Resolved") &&
+      !confirmSensitiveAction(`Mark this support ticket as ${status.toLowerCase()}?`)
+    ) {
+      return;
+    }
+
     setUpdatingId(id);
     try {
       await api.patch(`/api/support/${id}`, { status });
@@ -114,7 +123,7 @@ export default function SupportTickets() {
           )}
 
           {loading ? (
-            <p>Loading support tickets...</p>
+            <LoadingState label="Loading support tickets..." />
           ) : tickets.length === 0 ? (
             <div className="empty-state">
               <p>No support tickets found.</p>

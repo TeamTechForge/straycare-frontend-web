@@ -2,7 +2,9 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import LoadingState from "../components/LoadingState";
 import api from "../api/axios";
+import { confirmSensitiveAction } from "../utils/dashboardPreferences";
 import NavTabs from "../components/NavTabs";
 import "./UserDocuments.css";
 
@@ -32,6 +34,7 @@ export default function UserDocuments() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [status, setStatus] = useState<string>("");
   const [updating, setUpdating] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: "success" | "warning"; message: string } | null>(null);
 
   const tabs = [
     { label: "Users", to: "/users/general" },
@@ -55,12 +58,24 @@ export default function UserDocuments() {
   }, [id]);
 
   const handleStatusUpdate = async (newStatus: string) => {
+    if (
+      !confirmSensitiveAction(
+        `Are you sure you want to mark this verification as ${newStatus.toLowerCase()}?`
+      )
+    ) {
+      return;
+    }
+
     try {
       setUpdating(true);
-      await api.patch(`/api/users/${id}/status`, {
+      const response = await api.patch(`/api/users/${id}/status`, {
         status: newStatus,
       });
       setStatus(newStatus);
+      setFeedback({
+        type: response.data.emailSent ? "success" : "warning",
+        message: response.data.message,
+      });
     } catch (err) {
       console.error("Failed to update status:", err);
     } finally {
@@ -71,7 +86,18 @@ export default function UserDocuments() {
   const isLocalPath = (url: string) => url.startsWith("file:///");
 
   if (!user) {
-    return <p style={{ padding: "40px" }}>Loading...</p>;
+    return (
+      <div className="home-container">
+        <Sidebar />
+        <main className="main-content">
+          <div className="user-docs-container">
+            <Header title="User Management" />
+            <NavTabs tabs={tabs} />
+            <LoadingState label="Loading organization details..." />
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -82,6 +108,12 @@ export default function UserDocuments() {
         <div className="user-docs-container">
           <Header title="User Management" />
           <NavTabs tabs={tabs} />
+
+          {feedback && (
+            <div className={`verification-feedback ${feedback.type}`} role="status">
+              {feedback.message}
+            </div>
+          )}
 
           <div className="details-card">
             <div className="details-header">

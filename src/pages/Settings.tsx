@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import api from "../api/axios";
+import { confirmSensitiveAction } from "../utils/dashboardPreferences";
 import "./Settings.css";
 
 interface Admin {
@@ -10,12 +11,6 @@ interface Admin {
   email: string;
   role: string;
   status?: string;
-}
-
-interface MyAdminInfo {
-  emailNotifications: boolean;
-  donationAlerts: boolean;
-  userReportAlerts: boolean;
 }
 
 export default function Settings() {
@@ -33,14 +28,18 @@ export default function Settings() {
   const [newAdminName, setNewAdminName] = useState("");
   const [newAdminEmail, setNewAdminEmail] = useState("");
 
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [donationAlerts, setDonationAlerts] = useState(true);
-  const [userReportAlerts, setUserReportAlerts] = useState(true);
-  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const [sessionTimeout, setSessionTimeout] = useState(
+    () => localStorage.getItem("dashboardSessionTimeout") || "30"
+  );
+  const [confirmActions, setConfirmActions] = useState(
+    () => localStorage.getItem("dashboardConfirmActions") !== "false"
+  );
+  const [refreshInterval, setRefreshInterval] = useState(
+    () => localStorage.getItem("dashboardRefreshInterval") || "0"
+  );
 
   useEffect(() => {
     fetchAdmins();
-    fetchMyPreferences();
   }, []);
 
   const fetchAdmins = async () => {
@@ -49,19 +48,6 @@ export default function Settings() {
       setAdmins(res.data);
     } catch (err) {
       console.error("Failed to fetch admins:", err);
-    }
-  };
-
-  const fetchMyPreferences = async () => {
-    try {
-      const res = await api.get<MyAdminInfo>("/api/admins/me");
-      setEmailNotifications(res.data.emailNotifications ?? true);
-      setDonationAlerts(res.data.donationAlerts ?? true);
-      setUserReportAlerts(res.data.userReportAlerts ?? true);
-    } catch (err) {
-      console.error("Failed to fetch preferences:", err);
-    } finally {
-      setPreferencesLoaded(true);
     }
   };
 
@@ -150,7 +136,7 @@ export default function Settings() {
   };
 
   const handleRemoveAdmin = async (id: string) => {
-    if (!window.confirm("Are you sure you want to remove this admin?"))
+    if (!confirmSensitiveAction("Are you sure you want to remove this admin?"))
       return;
 
     try {
@@ -164,34 +150,25 @@ export default function Settings() {
     }
   };
 
-  const savePreference = async (
-    field: "emailNotifications" | "donationAlerts" | "userReportAlerts",
-    value: boolean
-  ) => {
-    try {
-      await api.patch("/api/admins/preferences", { [field]: value });
-    } catch (err) {
-      console.error("Failed to save preference:", err);
-      showMsg("Failed to save preference. Please try again.", true);
-    }
+  const notifyRuntime = () => {
+    window.dispatchEvent(new Event("dashboard-preferences-changed"));
   };
 
-  const toggleEmailNotifications = () => {
-    const next = !emailNotifications;
-    setEmailNotifications(next);
-    savePreference("emailNotifications", next);
+  const updateSessionTimeout = (value: string) => {
+    setSessionTimeout(value);
+    localStorage.setItem("dashboardSessionTimeout", value);
+    notifyRuntime();
   };
 
-  const toggleDonationAlerts = () => {
-    const next = !donationAlerts;
-    setDonationAlerts(next);
-    savePreference("donationAlerts", next);
+  const updateConfirmActions = (value: boolean) => {
+    setConfirmActions(value);
+    localStorage.setItem("dashboardConfirmActions", String(value));
   };
 
-  const toggleUserReportAlerts = () => {
-    const next = !userReportAlerts;
-    setUserReportAlerts(next);
-    savePreference("userReportAlerts", next);
+  const updateRefreshInterval = (value: string) => {
+    setRefreshInterval(value);
+    localStorage.setItem("dashboardRefreshInterval", value);
+    notifyRuntime();
   };
 
   const EyeIcon = () => (
@@ -278,6 +255,15 @@ export default function Settings() {
 
             <div className="admin-table-wrap">
               <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
               <tbody>
                 {admins.map((admin) => (
                   <tr key={admin._id}>
@@ -325,53 +311,51 @@ export default function Settings() {
           </div>
 
           <div className="card">
-            <h3 className="card-title">Notification Preferences</h3>
+            <h3 className="card-title">Dashboard Preferences</h3>
 
-            {!preferencesLoaded ? (
-              <p style={{ fontSize: "12px", color: "#9CA3AF" }}>Loading preferences...</p>
-            ) : (
-              <>
-                <label className="checkbox-row">
-                  <input
-                    type="checkbox"
-                    checked={emailNotifications}
-                    onChange={toggleEmailNotifications}
-                  />
-                  Email Notifications
-                </label>
+            <div className="preference-field">
+              <label htmlFor="session-timeout">Automatic session timeout</label>
+              <select
+                id="session-timeout"
+                value={sessionTimeout}
+                onChange={(event) => updateSessionTimeout(event.target.value)}
+              >
+                <option value="15">After 15 minutes</option>
+                <option value="30">After 30 minutes</option>
+                <option value="60">After 1 hour</option>
+                <option value="0">Never on this device</option>
+              </select>
+              <small>Log out after the selected period without activity.</small>
+            </div>
 
-                <label className="checkbox-row">
-                  <input
-                    type="checkbox"
-                    checked={donationAlerts}
-                    onChange={toggleDonationAlerts}
-                  />
-                  Donation Alerts
-                </label>
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={confirmActions}
+                onChange={(event) => updateConfirmActions(event.target.checked)}
+              />
+              <span>
+                <strong>Confirm sensitive actions</strong>
+                <small>Ask before removing admins or moderating reported users.</small>
+              </span>
+            </label>
 
-                <label className="checkbox-row">
-                  <input
-                    type="checkbox"
-                    checked={userReportAlerts}
-                    onChange={toggleUserReportAlerts}
-                  />
-                  User Report Alerts
-                </label>
-              </>
-            )}
+            <div className="preference-field">
+              <label htmlFor="refresh-interval">Automatic data refresh</label>
+              <select
+                id="refresh-interval"
+                value={refreshInterval}
+                onChange={(event) => updateRefreshInterval(event.target.value)}
+              >
+                <option value="0">Manual refresh only</option>
+                <option value="30">Every 30 seconds</option>
+                <option value="60">Every 1 minute</option>
+                <option value="300">Every 5 minutes</option>
+              </select>
+              <small>Reload the current page to retrieve the latest dashboard data.</small>
+            </div>
           </div>
 
-          <div className="card">
-            <h3 className="card-title">About</h3>
-
-            <p className="about-text">
-              StrayCare Admin Dashboard v1.0.0
-              <br />
-              Built with React + Node.js + MongoDB
-              <br />
-              © 2026 StrayCare.
-            </p>
-          </div>
         </div>
       </main>
     </div>
