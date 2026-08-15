@@ -1,31 +1,55 @@
-/* ── Page background ─────────────────────────────── */
+/* ── Global Page Background ────────────────────────── */
 .login-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #fff4d2;
-  font-family: "Segoe UI", sans-serif;
+  font-family: 'Inter', "Segoe UI", sans-serif;
   padding: 24px 16px;
   box-sizing: border-box;
 }
 
-/* ── Floating card ───────────────────────────────── */
+/* ── Main Container (Floating Glass Card) ──────────── */
 .login-card {
   display: flex;
   width: 100%;
-  max-width: 620px;      /* was 900px */
-  min-height: auto;
-  border-radius: 20px;
+  max-width: 900px;
+  min-height: 540px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  /* Soft layered shadow for depth */
+  box-shadow: 0 30px 60px -12px rgba(239, 159, 39, 0.15), 
+              0 18px 36px -18px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  /* Entrance animation */
+  animation: slideUpFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
-/* ── Left: image carousel ────────────────────────── */
+@keyframes slideUpFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Left Side: Image Carousel ─────────────────────── */
 .card-image {
   flex: 0.55;
   position: relative;
   overflow: hidden;
+}
+
+/* Gradient overlay to seamlessly blend the image */
+.card-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.05) 0%, rgba(255,255,255,0.05) 60%, rgba(255,255,255,1) 100%);
+  z-index: 1;
+  pointer-events: none;
 }
 
 .slide {
@@ -35,62 +59,71 @@
   background-position: center;
   background-repeat: no-repeat;
   opacity: 0;
-  transition: opacity 0.9s ease-in-out;
+  transform: scale(1.05);
+  transition: opacity 1.2s ease-in-out, transform 1.2s ease-out;
 }
 
 .slide.active {
   opacity: 1;
+  transform: scale(1);
 }
 
 /* ── Dots ────────────────────────────────────────── */
 .slide-dots {
   position: absolute;
-  bottom: 16px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 6px;
+  gap: 8px;
   z-index: 2;
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.4);
   border: none;
   cursor: pointer;
   padding: 0;
-  transition: background 0.3s ease, transform 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .dot.active {
   background: #ffffff;
-  transform: scale(1.3);
+  transform: scale(1.4);
+  box-shadow: 0 0 8px rgba(255,255,255,0.8);
 }
 
-/* ── Right: form ─────────────────────────────────── */
+/* ── Right Side: Form Panel ────────────────────────── */
 .card-form {
   flex: 0.45;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.95);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 28px 24px;   /* was clamp(24-56px) */
-  gap: 12px;
+  padding: 40px 48px;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
 }
 
 /* ── Logo ────────────────────────────────────────── */
 .logo-wrap {
-  width: 120px;         /* was up to 200px */
-  height: 120px;
-  margin-bottom: -8px;
+  width: 140px;
+  height: auto;
+  margin-bottom: 8px;
 }
 
 .logo-wrap img {
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: contain;
 }
 
@@ -101,62 +134,71 @@
 }
 
 .login-heading h1 {
-  font-size: 1.5rem;    /* was up to 2.4rem */
-  font-weight: 600;
-  color: #2c1a0e;
-  margin: 0 0 4px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a1511;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
 }
 
 .login-heading p {
-  font-size: 0.85rem;
-  color: #999;
+  font-size: 0.95rem;
+  color: #716962;
   margin: 0;
+  font-weight: 400;
 }
 
-/* ── Form ────────────────────────────────────────── */
+/* ── Form Layout ─────────────────────────────────── */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
   width: 100%;
+  margin-top: 8px;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  position: relative;
 }
 
 .input-group label {
-  font-size: 13px;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #2c1a0e;
+  color: #3b3129;
+  margin-left: 2px;
 }
 
+/* Modern animated input fields */
 .login-form input {
-  height: 40px;         /* was 50px */
-  padding: 0 14px;
-  border-radius: 8px;
-  border: 0.5px solid #e5e0d8;
-  background: #fafafa;
-  font-size: 0.9rem;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1.5px solid #e2dcd5;
+  background: #fbfaf9;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
   width: 100%;
   box-sizing: border-box;
   color: #2c1a0e;
   outline: none;
-  transition: border-color 0.18s ease;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .login-form input:focus {
   border-color: #ef9f27;
   background: #ffffff;
+  box-shadow: 0 4px 12px rgba(239, 159, 39, 0.1);
 }
 
 .login-form input::placeholder {
-  color: #ccc;
+  color: #b0a79e;
+  font-weight: 400;
 }
 
-/* ── Password wrapper ────────────────────────────── */
+/* ── Password Wrapper ────────────────────────────── */
 .password-wrapper {
   position: relative;
   display: flex;
@@ -164,91 +206,141 @@
 }
 
 .password-wrapper input {
-  padding-right: 40px;
+  padding-right: 44px;
 }
 
 .password-toggle {
   position: absolute;
-  right: 12px;
+  right: 14px;
   cursor: pointer;
-  color: #bbb;
+  color: #a8a096;
   background: none;
   border: none;
   padding: 0;
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
-  transition: color 0.18s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .password-toggle:hover {
   color: #ef9f27;
+  transform: scale(1.1);
 }
 
-/* ── Form footer ─────────────────────────────────── */
+/* ── Form Footer ─────────────────────────────────── */
 .form-footer {
   display: flex;
   justify-content: flex-end;
-  margin-top: -4px;
+  margin-top: -6px;
+  margin-bottom: 8px;
 }
 
 .forgot-link {
   color: #ef9f27;
   text-decoration: none;
   font-size: 0.85rem;
-  transition: color 0.18s ease;
+  font-weight: 600;
+  transition: color 0.2s ease;
 }
 
 .forgot-link:hover {
-  color: #ba7517;
+  color: #d1851b;
+  text-decoration: underline;
 }
 
-/* ── Error ───────────────────────────────────────── */
-.error-message {
-  color: #e24b4a;
-  font-size: 0.8rem;
+/* ── Status Messages ─────────────────────────────── */
+.error-message, .success-message {
+  font-size: 0.85rem;
   margin: 0;
   text-align: center;
-}
-
-/* ── Success ─────────────────────────────────────── */
-.success-message {
-  color: #16A34A;
-  font-size: 0.8rem;
-  margin: 0;
-  text-align: center;
-}
-
-/* ── Login button ────────────────────────────────── */
-.login-btn {
-  height: 40px;         /* was 50px */
-  width: 100%;
+  padding: 8px 12px;
   border-radius: 8px;
-  background: #ef9f27;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.error-message {
+  color: #c93534;
+  background: #fdeceb;
+  border: 1px solid #f9d2d0;
+}
+
+.success-message {
+  color: #15803d;
+  background: #eaf6ed;
+  border: 1px solid #cbe9d3;
+}
+
+/* ── Premium Gradient Button ─────────────────────── */
+.login-btn {
+  height: 50px;
+  width: 100%;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ef9f27 0%, #e67e22 100%);
   color: #fff;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
   cursor: pointer;
   border: none;
-  transition: filter 0.18s ease, transform 0.15s ease;
+  box-shadow: 0 6px 16px rgba(239, 159, 39, 0.3);
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-25deg);
+  transition: all 0.6s ease;
 }
 
 .login-btn:hover {
-  filter: brightness(95%);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(239, 159, 39, 0.4);
 }
 
-/* ── Small screens: stack image on top, form below ── */
-@media (max-width: 620px) {
+.login-btn:hover::after {
+  left: 150%;
+}
+
+.login-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(239, 159, 39, 0.3);
+}
+
+/* ── Responsive adjustments ──────────────────────── */
+@media (max-width: 768px) {
   .login-card {
     flex-direction: column;
-    max-width: 380px;
+    max-width: 440px;
   }
 
   .card-image {
-    height: 180px;
+    height: 220px;
+    flex: none;
+  }
+  
+  .card-image::after {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,1) 100%);
   }
 
   .card-form {
     flex: none;
+    padding: 32px 24px;
+    border-radius: 24px;
+    margin-top: -20px;
   }
 }
