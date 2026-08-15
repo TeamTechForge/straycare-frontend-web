@@ -5,6 +5,7 @@ import api from "../api/axios";
 import logo from "../assets/LogoNew.png";
 
 export default function ResetPassword() {
+  const [resetCode, setResetCode] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -22,6 +23,11 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!isInvite && !resetCode) {
+      setError("Please enter the 6-digit reset code.");
+      return;
+    }
 
     if (!newPassword || !confirmPassword) {
       setError("Please fill in all fields.");
@@ -41,9 +47,11 @@ export default function ResetPassword() {
     try {
       setLoading(true);
 
+      const payloadToken = isInvite ? token : resetCode;
+
       const res = isInvite
-        ? await api.post("/api/admins/accept-invite", { token, newPassword })
-        : await api.post("/api/admin/reset-password", { token, newPassword });
+        ? await api.post("/api/admins/accept-invite", { token: payloadToken, newPassword })
+        : await api.post("/api/admin/reset-password", { token: payloadToken, newPassword });
 
       setMessage(res.data.message);
       setError("");
@@ -58,12 +66,12 @@ export default function ResetPassword() {
     }
   };
 
-  if (!token) {
+  if (isInvite && !token) {
     return (
       <div className="login-page">
         <div className="login-card">
           <div className="card-form" style={{ flex: 1, textAlign: "center" }}>
-            <p className="error-message">Invalid or missing token.</p>
+            <p className="error-message">Invalid or missing invite token.</p>
             
               <a href="#"
               onClick={(e) => {
@@ -93,7 +101,7 @@ export default function ResetPassword() {
             <p>
               {isInvite
                 ? "Welcome! Set a password to activate your admin account."
-                : "Enter your new password below."}
+                : "Enter the 6-digit code sent to your email and your new password below."}
             </p>
           </div>
 
@@ -101,6 +109,19 @@ export default function ResetPassword() {
           {error && <p className="error-message">{error}</p>}
 
           <form className="login-form" onSubmit={handleSubmit}>
+            {!isInvite && (
+              <div className="input-group">
+                <label>6-Digit Reset Code</label>
+                <input
+                  type="text"
+                  placeholder="Enter 6-digit code"
+                  value={resetCode}
+                  onChange={(e) => setResetCode(e.target.value)}
+                  maxLength={6}
+                />
+              </div>
+            )}
+
             <div className="input-group">
               <label>New Password</label>
               <div className="password-wrapper">
