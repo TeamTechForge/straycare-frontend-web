@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import LoadingState from "../components/LoadingState";
 import api from "../api/axios";
+import { confirmSensitiveAction } from "../utils/dashboardPreferences";
 import "./SupportTickets.css";
 
 interface Ticket {
@@ -23,6 +25,7 @@ export default function SupportTickets() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   useEffect(() => {
     fetchTickets();
@@ -40,6 +43,13 @@ export default function SupportTickets() {
   };
 
   const handleStatusChange = async (id: string, status: Ticket["status"]) => {
+    if (
+      (status === "Closed" || status === "Resolved") &&
+      !confirmSensitiveAction(`Mark this support ticket as ${status.toLowerCase()}?`)
+    ) {
+      return;
+    }
+
     setUpdatingId(id);
     try {
       await api.patch(`/api/support/${id}`, { status });
@@ -71,8 +81,13 @@ export default function SupportTickets() {
         )
       );
       setReplyDrafts((prev) => ({ ...prev, [id]: "" }));
-    } catch (err) {
+      setFeedback({ type: "success", message: "Reply saved and emailed to the ticket sender." });
+    } catch (err: any) {
       console.error("Failed to send reply:", err);
+      setFeedback({
+        type: "error",
+        message: err.response?.data?.error || "Failed to send the support reply.",
+      });
     } finally {
       setUpdatingId(null);
     }
@@ -101,8 +116,14 @@ export default function SupportTickets() {
         <div className="support-page support-container">
           <Header title="Support Tickets" />
 
+          {feedback && (
+            <div className={`support-feedback ${feedback.type}`} role="status">
+              {feedback.message}
+            </div>
+          )}
+
           {loading ? (
-            <p>Loading support tickets...</p>
+            <LoadingState label="Loading support tickets..." />
           ) : tickets.length === 0 ? (
             <div className="empty-state">
               <p>No support tickets found.</p>

@@ -20,6 +20,13 @@ export default function Login() {
   const images = [loginBg1, loginBg2, loginBg3, loginBg4];
 
   useEffect(() => {
+    if (sessionStorage.getItem("dashboardSessionExpired") === "true") {
+      setError("Your session expired due to inactivity. Please sign in again.");
+      sessionStorage.removeItem("dashboardSessionExpired");
+    }
+  }, []);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
     }, 3500);

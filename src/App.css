@@ -1,28 +1,64 @@
+:root {
+  --page-bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface-border: #eee8df;
+  --brand: #f5a623;
+  --heading: #412828;
+  --muted: #6b7280;
+  --page-padding: clamp(14px, 2.5vw, 24px);
+  --card-radius: 10px;
+  --card-shadow: 0 1px 3px rgba(65, 40, 40, 0.06);
+}
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
-  height: 100%;
   width: 100%;
-  font-family: Arial, sans-serif;
-  background-color: #f9fafb; 
+  min-height: 100%;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: var(--page-bg);
   color: #333;
 }
 
-/* Main container fills the screen */
 .home-container {
   display: flex;
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  overflow-x: clip;
 }
 
 .main-content {
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
   margin: 0;
   padding: 0;
-  background-color: #fff; /* page background */
+  background: var(--page-bg);
+  overflow-x: clip;
 }
 
+.main-content > .analytics-page.analytics-container,
+.main-content > .donations-page.donations-container,
+.main-content > .general-users-page.users-container,
+.main-content > .vets-ngo-page.users-container,
+.main-content > .reported-users-page.reported-users-container,
+.main-content > .rescues-page.rescues-container,
+.main-content > .notifications-page.notifications-container,
+.main-content > .support-page.support-container,
+.main-content > .user-docs-container {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  padding: var(--page-padding);
+  background: var(--page-bg);
+  box-sizing: border-box;
+}
 
-
+.main-content img,
+.main-content svg {
+  max-width: 100%;
+}

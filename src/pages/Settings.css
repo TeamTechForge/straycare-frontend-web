@@ -1,14 +1,20 @@
 .settings-page.settings-wrapper {
-  padding: 22px;
-  max-width: 820px;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: clamp(14px, 2.5vw, 24px);
+  background: #f7f5f0;
+  box-sizing: border-box;
 }
 
 .settings-page .card {
   background: #fff;
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: clamp(16px, 2.5vw, 24px);
+  margin-bottom: 18px;
+  border: 1px solid #eee8df;
+  box-shadow: 0 1px 3px rgba(65, 40, 40, 0.06);
 }
 
 .settings-page .card-title {
@@ -42,6 +48,10 @@
   margin-bottom: 10px;
   display: flex;
   flex-direction: column;
+}
+
+.settings-page form {
+  width: min(100%, 620px);
 }
 
 .settings-page .form-group label {
@@ -105,22 +115,42 @@
 
 .settings-page .admin-table {
   width: 100%;
+  min-width: 620px;
   border-collapse: collapse;
-  margin-bottom: 6px;
+  margin-bottom: 0;
+}
+
+.settings-page .admin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255, 183, 0, 0.1);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .settings-page .admin-table th,
 .settings-page .admin-table td {
-  border: 1px solid #eee;
-  padding: 7px 9px;
+  padding: 12px 14px;
   text-align: left;
-  font-size: 11px;
+  font-size: 12px;
+  color: #374151;
+  border-top: 1px solid #F9FAFB;
 }
 
 .settings-page .admin-table th {
-  background: #FFF9E6;
+  padding: 10px 14px;
+  background: #F9FAFB;
   font-weight: 600;
-  color: #555;
+  color: #6B7280;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.settings-page .admin-table tbody tr:hover {
+  background: #FFFBF0;
 }
 
 .settings-page .role-badge {
@@ -135,15 +165,81 @@
 
 .settings-page .checkbox-row {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 9px;
   font-size: 12px;
   color: #412828;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+.settings-page .checkbox-row input {
+  margin-top: 3px;
+  accent-color: #f5a623;
+}
+
+.settings-page .checkbox-row span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-page .checkbox-row strong {
+  font-size: 11px;
+}
+
+.settings-page .checkbox-row small {
+  color: #6b7280;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.settings-page .preference-field {
+  width: min(100%, 360px);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 18px;
+}
+
+.settings-page .preference-field label {
+  color: #412828;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.settings-page .preference-field select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-size: 11px;
+}
+
+.settings-page .preference-field small {
+  color: #6b7280;
+  font-size: 10px;
+  line-height: 1.4;
 }
 
 .settings-page .about-text {
   color: #666;
   font-size: 12px;
   line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .settings-page .card {
+    padding: 14px;
+  }
+
+  .settings-page .btn {
+    width: 100%;
+  }
+
+  .settings-page .admin-table .btn {
+    width: auto;
+  }
 }

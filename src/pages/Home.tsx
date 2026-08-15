@@ -72,6 +72,8 @@ export default function Home() {
   const [currentImage, setCurrentImage] = useState<number>(0);
   const [adminNotifications, setAdminNotifications] = useState<AdminNotification[]>([]);
   const [bellOpen, setBellOpen] = useState<boolean>(false);
+  const adminId = localStorage.getItem("adminId") || "current";
+  const lastSeenKey = `adminNotificationsLastSeen:${adminId}`;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -96,10 +98,38 @@ export default function Home() {
         return n.audience === "Admins";
       });
 
-      setAdminNotifications(forAdmins.slice(0, 10));
+      const lastSeen = localStorage.getItem(lastSeenKey);
+      const unread = lastSeen
+        ? forAdmins.filter(
+            (notification: AdminNotification) =>
+              new Date(notification.createdAt).getTime() > new Date(lastSeen).getTime()
+          )
+        : forAdmins;
+
+      setAdminNotifications(unread.slice(0, 10));
     } catch (err) {
       console.error("Failed to fetch admin notifications:", err);
     }
+  };
+
+  const handleBellToggle = () => {
+    setBellOpen((open) => {
+      const nextOpen = !open;
+      if (nextOpen && adminNotifications.length > 0) {
+        const newestTimestamp = adminNotifications.reduce(
+          (latest, notification) =>
+            Math.max(latest, new Date(notification.createdAt).getTime()),
+          Date.now()
+        );
+        localStorage.setItem(lastSeenKey, new Date(newestTimestamp).toISOString());
+      }
+      return nextOpen;
+    });
+  };
+
+  const dismissViewedNotifications = () => {
+    setBellOpen(false);
+    setAdminNotifications([]);
   };
 
   return (
@@ -123,11 +153,11 @@ export default function Home() {
             <div className="admin-bell-wrap">
               <button
                 className="admin-bell-btn"
-                onClick={() => setBellOpen((prev) => !prev)}
+                onClick={bellOpen ? dismissViewedNotifications : handleBellToggle}
                 aria-label="Admin notifications"
               >
                 🔔
-                {adminNotifications.length > 0 && (
+                {adminNotifications.length > 0 && !bellOpen && (
                   <span className="admin-bell-badge">
                     {adminNotifications.length}
                   </span>

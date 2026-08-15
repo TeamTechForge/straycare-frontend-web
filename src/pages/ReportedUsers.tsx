@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import NavTabs from "../components/NavTabs";
+import LoadingState from "../components/LoadingState";
 import api from "../api/axios";
+import { confirmSensitiveAction } from "../utils/dashboardPreferences";
 import "./ReportedUsers.css";
 
 export default function ReportedUsers() {
@@ -33,7 +35,7 @@ export default function ReportedUsers() {
         ? "Send a warning and resolve this report?"
         : "Dismiss this report? No action will be taken on the user.";
 
-    if (!window.confirm(confirmMsg)) return;
+    if (action !== "Dismiss" && !confirmSensitiveAction(confirmMsg)) return;
 
     setActingOn(report._id);
     try {
@@ -67,7 +69,7 @@ export default function ReportedUsers() {
           />
 
           {loading ? (
-            <p>Loading...</p>
+            <LoadingState label="Loading reports..." />
           ) : reports.length === 0 ? (
             <div className="empty-state">
               <p>No reported users or posts found.</p>

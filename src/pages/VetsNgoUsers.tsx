@@ -57,6 +57,7 @@ export default function VetsNgoUsers() {
           <Header title="User Management" />
           <NavTabs tabs={tabs} />
 
+          <div className="table-box">
           <table className="users-table">
             <thead>
               <tr>
@@ -69,7 +70,13 @@ export default function VetsNgoUsers() {
             </thead>
 
             <tbody>
-              {users.map((user: User) => (
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
+                    No organizations found.
+                  </td>
+                </tr>
+              ) : users.map((user: User) => (
                 <tr key={user._id}>
                   <td>{user._id}</td>
                   <td>{user.name || user.fullName}</td>
@@ -96,6 +103,10 @@ export default function VetsNgoUsers() {
               ))}
             </tbody>
           </table>
+          <div className="pagination-row">
+            Showing {users.length} organizations
+          </div>
+          </div>
         </div>
       </main>
     </div>

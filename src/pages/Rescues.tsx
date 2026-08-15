@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import LoadingState from "../components/LoadingState";
 import "./Rescues.css";
 import api from "../api/axios";
 
@@ -171,7 +172,7 @@ export default function Rescues() {
           </div>
 
           {loading ? (
-            <p>Loading rescues...</p>
+            <LoadingState label="Loading rescues..." />
           ) : error ? (
             <p style={{ color: "red" }}>{error}</p>
           ) : (

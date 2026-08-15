@@ -1,5 +1,8 @@
 .analytics-page.analytics-container {
-  padding: 22px;
+  padding: clamp(14px, 2.5vw, 24px);
+  min-height: 100vh;
+  background: #f7f5f0;
+  box-sizing: border-box;
 }
 
 .analytics-page .kpi-row {
@@ -47,7 +50,7 @@
   padding: 13px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   flex: 1;
-  min-width: 260px;
+  min-width: min(260px, 100%);
 }
 
 .analytics-page .chart-card.wide {
@@ -55,17 +58,12 @@
 }
 
 .analytics-page .chart-card.narrow {
-  min-width: 220px;
+  min-width: min(220px, 100%);
 }
 
 .analytics-page .chart-title {
   margin-bottom: 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #412828;
-}
-
-.analytics-page .analytics-loading {
-  padding: 22px;
   color: #412828;
 }

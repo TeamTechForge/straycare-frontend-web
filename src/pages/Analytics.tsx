@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import LoadingState from "../components/LoadingState";
 import api from "../api/axios";
 import {
   ComposedChart,
@@ -189,7 +190,17 @@ export default function Analytics() {
     .reduce((acc, d) => acc + Number(d.amount || 0), 0);
 
   if (loading) {
-    return <div className="analytics-loading">Loading analytics...</div>;
+    return (
+      <div className="home-container">
+        <Sidebar />
+        <main className="main-content">
+          <div className="analytics-page analytics-container">
+            <Header title="System Analytics" />
+            <LoadingState label="Loading analytics..." />
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (

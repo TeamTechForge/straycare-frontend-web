@@ -134,6 +134,10 @@
   border-top: 1px solid #F9FAFB;
 }
 
+.vets-ngo-page .users-table tbody tr:hover {
+  background: #FFFBF0;
+}
+
 .vets-ngo-page .status-badge {
   padding: 3px 10px;
   font-weight: 600;
