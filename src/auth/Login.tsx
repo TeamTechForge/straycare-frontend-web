@@ -2,7 +2,7 @@ import "./Login.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
-import logo from "../assets/LogoNew.png";
+import logo from '../assets/LogoNew.png';
 import loginBg1 from "../assets/Login01.jpg";
 import loginBg2 from "../assets/Login02.jpg";
 import loginBg3 from "../assets/Login03.jpg";

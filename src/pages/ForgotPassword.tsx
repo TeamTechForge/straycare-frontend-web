@@ -2,7 +2,7 @@ import "../auth/Login.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
-import logo from "../assets/LogoNew.png";
+import logo from '../assets/LogoNew.png';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState<string>("");
