@@ -31,6 +31,7 @@ const AUTO_REFRESH_ROUTES = [
   "/users/general",
   "/users/vets-ngos",
   "/reports/users",
+  "/reports/posts",
   "/rescues",
   "/analytics",
 ];
@@ -117,6 +118,7 @@ function DashboardRoutes() {
       <Route path="/users/:id/documents" element={<UserDocuments />} />
       <Route path="/reports" element={<Reports />} />
       <Route path="/reports/users" element={<ReportedUsers />} />
+      <Route path="/reports/posts" element={<Reports />} />
       <Route path="/rescues" element={<Rescues />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/analytics" element={<Analytics />} />

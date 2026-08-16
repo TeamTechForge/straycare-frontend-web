@@ -260,20 +260,11 @@ export default function Donations() {
 
                       <td>
                         <span
-                          style={{
-                            padding: "4px 12px",
-                            borderRadius: "9999px",
-                            fontWeight: "600",
-                            fontSize: "12px",
-                            backgroundColor:
-                              d.status === "SUCCESS"
-                                ? "#DCFCE7"
-                                : "#FCDCDD",
-                            color:
-                              d.status === "SUCCESS"
-                                ? "#16A34A"
-                                : "#D43F25",
-                          }}
+                          className={`transaction-status ${
+                            d.status === "SUCCESS"
+                              ? "transaction-status-success"
+                              : "transaction-status-failed"
+                          }`}
                         >
                           {d.status}
                         </span>

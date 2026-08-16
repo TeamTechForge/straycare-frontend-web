@@ -122,3 +122,63 @@
   background: #FCDCDD;
   color: #D43F25;
 }
+
+.reported-users-page .btn-review {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.report-count-badge {
+  display: inline-grid;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  place-items: center;
+  box-sizing: border-box;
+  border-radius: 9999px;
+  background: #FFF3D6;
+  color: #A85F00;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.user-review-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(25, 20, 18, 0.52);
+}
+
+.user-review-modal {
+  position: relative;
+  width: min(650px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 26px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.2);
+}
+
+.user-review-modal h2 { margin: 0; color: #412828; font-size: 22px; }
+.user-review-close { position: absolute; top: 12px; right: 14px; border: 0; background: transparent; color: #6B7280; font-size: 28px; cursor: pointer; }
+.review-user-id { margin: 6px 0 14px; color: #777; font-family: monospace; font-size: 11px; }
+.review-summary { display: flex; gap: 8px; margin-bottom: 14px; }
+.review-summary span { padding: 5px 9px; border-radius: 999px; background: #FEF9C3; color: #854D0E; font-size: 10px; font-weight: 600; }
+.review-report-list { display: grid; gap: 9px; }
+.review-report-card { padding: 13px; border: 1px solid #EEE8DF; border-radius: 8px; background: #FFFEFB; }
+.review-report-card > div { display: flex; justify-content: space-between; gap: 12px; color: #412828; font-size: 12px; }
+.review-report-card > div span, .review-report-card small { color: #888; font-size: 10px; }
+.review-report-card p { margin: 8px 0; color: #555; font-size: 12px; line-height: 1.5; }
+.review-report-card small { display: block; margin-bottom: 9px; font-family: monospace; }
+.suspension-rule { margin: 15px 0 10px; color: #6B7280; font-size: 11px; line-height: 1.5; }
+.review-actions { display: flex; justify-content: flex-end; gap: 7px; padding-top: 12px; border-top: 1px solid #EEE8DF; }
+.user-review-modal .action-btn { padding: 7px 11px; border-radius: 5px; border: 0; font-size: 11px; font-weight: 600; cursor: pointer; }
+.user-review-modal .btn-dismiss { border: 1px solid #D1D5DB; background: #fff; color: #4B5563; }
+.user-review-modal .btn-warn { background: #FEF3C7; color: #D97706; }
+.user-review-modal .btn-suspend { background: #FCDCDD; color: #D43F25; }
+.review-actions .action-btn:disabled { cursor: not-allowed; opacity: 0.45; }

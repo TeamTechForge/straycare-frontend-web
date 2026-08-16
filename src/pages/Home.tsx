@@ -1,6 +1,6 @@
 import "./Home.css";
 import Sidebar from "../components/Sidebar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import api from "../api/axios";
 
@@ -71,7 +71,11 @@ const bannerImages: string[] = [
 export default function Home() {
   const [currentImage, setCurrentImage] = useState<number>(0);
   const [adminNotifications, setAdminNotifications] = useState<AdminNotification[]>([]);
+  const [newNotifications, setNewNotifications] = useState<AdminNotification[]>([]);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState<number>(0);
   const [bellOpen, setBellOpen] = useState<boolean>(false);
+  const [showPreviousNotifications, setShowPreviousNotifications] = useState<boolean>(false);
+  const bellRef = useRef<HTMLDivElement>(null);
   const adminId = localStorage.getItem("adminId") || "current";
   const lastSeenKey = `adminNotificationsLastSeen:${adminId}`;
 
@@ -106,30 +110,52 @@ export default function Home() {
           )
         : forAdmins;
 
-      setAdminNotifications(unread.slice(0, 10));
+      setAdminNotifications(forAdmins.slice(0, 10));
+      setNewNotifications(unread.slice(0, 10));
+      setUnreadNotificationCount(unread.length);
     } catch (err) {
       console.error("Failed to fetch admin notifications:", err);
     }
   };
 
+  const closeBell = () => {
+    setBellOpen(false);
+    setShowPreviousNotifications(false);
+    setNewNotifications([]);
+  };
+
+  useEffect(() => {
+    if (!bellOpen) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (bellRef.current && !bellRef.current.contains(event.target as Node)) {
+        closeBell();
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [bellOpen]);
+
   const handleBellToggle = () => {
+    if (bellOpen) {
+      closeBell();
+      return;
+    }
+
     setBellOpen((open) => {
       const nextOpen = !open;
-      if (nextOpen && adminNotifications.length > 0) {
+      if (nextOpen && unreadNotificationCount > 0 && adminNotifications.length > 0) {
         const newestTimestamp = adminNotifications.reduce(
           (latest, notification) =>
             Math.max(latest, new Date(notification.createdAt).getTime()),
-          Date.now()
+          0
         );
         localStorage.setItem(lastSeenKey, new Date(newestTimestamp).toISOString());
+        setUnreadNotificationCount(0);
       }
       return nextOpen;
     });
-  };
-
-  const dismissViewedNotifications = () => {
-    setBellOpen(false);
-    setAdminNotifications([]);
   };
 
   return (
@@ -150,16 +176,16 @@ export default function Home() {
               />
             ))}
 
-            <div className="admin-bell-wrap">
+            <div className="admin-bell-wrap" ref={bellRef}>
               <button
                 className="admin-bell-btn"
-                onClick={bellOpen ? dismissViewedNotifications : handleBellToggle}
+                onClick={handleBellToggle}
                 aria-label="Admin notifications"
               >
                 🔔
-                {adminNotifications.length > 0 && !bellOpen && (
+                {unreadNotificationCount > 0 && !bellOpen && (
                   <span className="admin-bell-badge">
-                    {adminNotifications.length}
+                    {unreadNotificationCount}
                   </span>
                 )}
               </button>
@@ -168,10 +194,14 @@ export default function Home() {
                 <div className="admin-bell-dropdown">
                   <p className="admin-bell-title">Admin Notifications</p>
 
-                  {adminNotifications.length === 0 ? (
-                    <p className="admin-bell-empty">No admin notifications yet.</p>
+                  {(showPreviousNotifications ? adminNotifications : newNotifications).length === 0 ? (
+                    <p className="admin-bell-empty">
+                      {showPreviousNotifications
+                        ? "No previous notifications."
+                        : "No new notifications."}
+                    </p>
                   ) : (
-                    adminNotifications.map((n) => (
+                    (showPreviousNotifications ? adminNotifications : newNotifications).map((n) => (
                       <div className="admin-bell-item" key={n._id}>
                         <strong>{n.title}</strong>
                         <p>{n.message}</p>
@@ -181,6 +211,16 @@ export default function Home() {
                       </div>
                     ))
                   )}
+
+                  <button
+                    type="button"
+                    className="admin-bell-history-btn"
+                    onClick={() => setShowPreviousNotifications((show) => !show)}
+                  >
+                    {showPreviousNotifications
+                      ? "View new notifications"
+                      : "View previous notifications"}
+                  </button>
                 </div>
               )}
             </div>

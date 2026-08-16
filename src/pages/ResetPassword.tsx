@@ -69,7 +69,7 @@ export default function ResetPassword() {
   if (isInvite && !token) {
     return (
       <div className="login-page">
-        <div className="login-card">
+        <div className="login-card auth-card">
           <div className="card-form" style={{ flex: 1, textAlign: "center" }}>
             <p className="error-message">Invalid or missing invite token.</p>
             
@@ -90,7 +90,7 @@ export default function ResetPassword() {
 
   return (
     <div className="login-page">
-      <div className="login-card">
+      <div className="login-card auth-card">
         <div className="card-form" style={{ flex: 1 }}>
           <div className="logo-wrap">
             <img src={logo} alt="StrayCare Logo" />

@@ -109,6 +109,24 @@
   background: #FFFBF0;
 }
 
+.donations-page .transaction-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.donations-page .transaction-status-success {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.donations-page .transaction-status-failed {
+  background: #FCDCDD;
+  color: #D43F25;
+}
+
 .donations-page .pagination-row {
   padding: 12px 14px;
   border-top: 1px solid #F3F4F6;
