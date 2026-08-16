@@ -174,9 +174,6 @@ export default function ReportedUsers() {
               })}
             </div>
 
-            <p className="suspension-rule">
-              Review the available reports before choosing a moderation action.
-            </p>
             <div className="review-actions">
               <button
                 disabled={!selectedReport || selectedReport.status?.toLowerCase() !== "pending" || actingOn !== null}
