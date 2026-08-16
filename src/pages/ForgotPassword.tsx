@@ -40,7 +40,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="login-page">
-      <div className="login-card">
+      <div className="login-card auth-card">
         <div className="card-form" style={{ flex: 1 }}>
           <div className="logo-wrap">
             <img src={logo} alt="StrayCare Logo" />

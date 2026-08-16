@@ -46,6 +46,7 @@ body {
 .main-content > .general-users-page.users-container,
 .main-content > .vets-ngo-page.users-container,
 .main-content > .reported-users-page.reported-users-container,
+.main-content > .reported-posts-page.reported-posts-container,
 .main-content > .rescues-page.rescues-container,
 .main-content > .notifications-page.notifications-container,
 .main-content > .support-page.support-container,
@@ -61,4 +62,12 @@ body {
 .main-content img,
 .main-content svg {
   max-width: 100%;
+}
+
+/* Keep the focus treatment consistent for every field users can type into. */
+.main-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+.main-content textarea:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.14);
 }

@@ -1,1 +1,32 @@
 
+.reported-posts-container { padding: 22px; }
+.reports-message { margin-top: 14px; padding: 28px; border: 1px solid var(--surface-border); border-radius: 8px; background: #fff; color: #6b7280; text-align: center; }
+.error-message { color: #b42318; }
+.reported-posts-table-wrap { margin-top: 14px; overflow-x: auto; border: 1px solid var(--surface-border); border-radius: 8px; background: #fff; }
+.reported-posts-table { width: 100%; min-width: 850px; border-collapse: collapse; }
+.reported-posts-table th { padding: 10px 14px; background: #f9fafb; color: #6b7280; font-size: 10px; font-weight: 600; letter-spacing: .4px; text-align: left; text-transform: uppercase; }
+.reported-posts-table td { padding: 12px 14px; border-top: 1px solid #f9fafb; color: #374151; font-size: 12px; vertical-align: middle; }
+.reported-posts-table tbody tr:hover { background: #fffbf0; }
+.reported-posts-table td strong, .reported-posts-table td small { display: block; }
+.reported-posts-table td small { margin-top: 3px; color: #8a8f98; }
+.mono-value { font-family: monospace; font-size: 10px !important; }
+.post-status { display: inline-block; padding: 3px 10px; border-radius: 9999px; font-size: 10px; font-weight: 600; text-transform: capitalize; }
+.post-status-pending { background: #fef9c3; color: #854d0e; }
+.post-status-resolved { background: #dcfce7; color: #166534; }
+.post-status-dismissed { background: #f3f4f6; color: #4b5563; }
+.post-actions, .post-modal-actions { display: flex; gap: 7px; }
+.post-actions button, .post-modal-actions button { border-radius: 5px; padding: 5px 8px; font-size: 10px; font-weight: 600; cursor: pointer; }
+.post-actions button:disabled, .post-modal-actions button:disabled { cursor: not-allowed; opacity: .55; }
+.view-post-btn { border: 0; background: #fef3c7; color: #d97706; }
+.dismiss-post-btn { border: 1px solid #ccc; background: #fff; color: #555; }
+.remove-post-btn { border: 0; background: #fcdcdc; color: #d43f25; }
+.post-modal-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(25, 20, 18, .52); }
+.post-modal { position: relative; width: min(620px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; box-sizing: border-box; padding: 26px; border-radius: 12px; background: #fff; box-shadow: 0 20px 55px rgba(0, 0, 0, .2); }
+.post-modal-close { position: absolute; top: 12px; right: 14px; border: 0; background: transparent; color: #6b7280; font-size: 28px; cursor: pointer; }
+.post-modal-eyebrow { margin: 0 36px 6px 0; color: #d97706; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; }
+.post-modal h2 { margin: 0; color: #412828; font-size: 22px; }
+.post-meta { margin: 8px 0 18px; color: #7b7f86; font-size: 12px; }
+.reported-post-image { width: 100%; max-height: 310px; border-radius: 9px; object-fit: cover; }
+.reported-post-content { margin: 18px 0 24px; color: #374151; font-size: 14px; line-height: 1.65; white-space: pre-wrap; }
+.post-modal-actions { justify-content: flex-end; padding-top: 16px; border-top: 1px solid #eee8df; }
+@media (max-width: 700px) { .reported-posts-container { padding: 14px; } .post-modal { padding: 20px; } }

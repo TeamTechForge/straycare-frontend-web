@@ -5,6 +5,7 @@ import logo from "../assets/LogoNew.png";
 export default function Sidebar() {
   const location = useLocation();
   const isUsersSection = location.pathname.startsWith("/users");
+  const isReportsSection = location.pathname.startsWith("/reports");
 
   return (
     <aside className="sidebar">
@@ -50,7 +51,10 @@ export default function Sidebar() {
           </li>
 
           <li>
-            <NavLink to="/reports/users" className="nav-link">
+            <NavLink
+              to="/reports/users"
+              className={`nav-link ${isReportsSection ? "active" : ""}`}
+            >
               Reports
             </NavLink>
           </li>
