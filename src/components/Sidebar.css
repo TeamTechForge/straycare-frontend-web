@@ -66,10 +66,17 @@
 .sidebar-logo {
   text-align: center;
   margin-top: 12px;
+  padding: 0 8px;
 }
 
 .sidebar-logo img {
-  width: 85px;
-  max-width: 90%;
+  width: 75px;
+  max-width: 80%;
+}
+
+@media (max-width: 480px) {
+  .sidebar-logo img {
+    width: 55px;
+  }
 }
 

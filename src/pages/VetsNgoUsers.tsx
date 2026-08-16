@@ -34,7 +34,19 @@ export default function VetsNgoUsers() {
   const fetchUsers = async () => {
     try {
       const res = await api.get("/api/users/vets-ngos");
-      setUsers(res.data);
+      const statusPriority: Record<string, number> = {
+        pending: 0,
+        verified: 1,
+        rejected: 2,
+      };
+
+      const sortedUsers = [...res.data].sort((first: User, second: User) => {
+        const firstStatus = (first.status || "Pending").toLowerCase();
+        const secondStatus = (second.status || "Pending").toLowerCase();
+        return (statusPriority[firstStatus] ?? 3) - (statusPriority[secondStatus] ?? 3);
+      });
+
+      setUsers(sortedUsers);
     } catch (err) {
       console.error("Failed to fetch users:", err);
     }

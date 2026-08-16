@@ -1,6 +1,6 @@
 import "./Sidebar.css";
 import { NavLink, useLocation } from "react-router-dom";
-import logo from "../assets/LogoNew.png";
+import logo from '../assets/LogoNew.png';
 
 export default function Sidebar() {
   const location = useLocation();
