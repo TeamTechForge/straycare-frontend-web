@@ -17,6 +17,7 @@ export default function ReportedUsers() {
   const [reviewingReportId, setReviewingReportId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
@@ -89,7 +90,9 @@ export default function ReportedUsers() {
     ].some((value) => String(value || "").toLowerCase().includes(query));
     const matchesDate = !dateFilter || (report.createdAt &&
       new Date(report.createdAt).toLocaleDateString("en-CA") === dateFilter);
-    return matchesSearch && matchesDate;
+    const matchesStatus = statusFilter === "All" ||
+      String(report.status || "Pending").toLowerCase() === statusFilter.toLowerCase();
+    return matchesSearch && matchesDate && matchesStatus;
   });
   const sortedReports = [...filteredReports].sort(pendingFirst);
   const paginatedReports = sortedReports.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -135,6 +138,17 @@ export default function ReportedUsers() {
                 setDateFilter(event.target.value);
                 setCurrentPage(1);
               }} />
+            </div>
+            <div className="table-date-filter">
+              <label>Status</label>
+              <select value={statusFilter} onChange={(event) => {
+                setStatusFilter(event.target.value);
+                setCurrentPage(1);
+              }}>
+                <option value="All">All statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Resolved">Resolved</option>
+              </select>
             </div>
           </div>
 
