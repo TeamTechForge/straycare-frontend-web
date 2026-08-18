@@ -12,7 +12,6 @@ interface Admin {
   email: string;
   role: string;
   status?: string;
-  createdAt?: string;
 }
 
 export default function Settings() {
@@ -29,7 +28,6 @@ export default function Settings() {
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [currentAdminId, setCurrentAdminId] = useState("");
   const [adminSearch, setAdminSearch] = useState("");
-  const [adminDate, setAdminDate] = useState("");
   const [adminPage, setAdminPage] = useState(1);
   const pageSize = 10;
 
@@ -37,9 +35,7 @@ export default function Settings() {
     const query = adminSearch.trim().toLowerCase();
     const matchesSearch = !query || [admin.username, admin.email, admin.role, admin.status]
       .some((value) => String(value || "").toLowerCase().includes(query));
-    const matchesDate = !adminDate || (admin.createdAt &&
-      new Date(admin.createdAt).toLocaleDateString("en-CA") === adminDate);
-    return matchesSearch && matchesDate;
+    return matchesSearch;
   });
   const paginatedAdmins = filteredAdmins.slice((adminPage - 1) * pageSize, adminPage * pageSize);
 
@@ -257,13 +253,6 @@ export default function Settings() {
                 }} />
               </div>
               <button type="button" className="dashboard-search-btn" onClick={() => setAdminSearch(adminSearch.trim())}>Search</button>
-              <div className="table-date-filter">
-                <label>Date</label>
-                <input type="date" value={adminDate} onChange={(event) => {
-                  setAdminDate(event.target.value);
-                  setAdminPage(1);
-                }} />
-              </div>
             </div>
 
             <div className="admin-table-wrap">
@@ -274,7 +263,6 @@ export default function Settings() {
                   <th>Email</th>
                   <th>Role</th>
                   <th>Status</th>
-                  <th>Registered</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -287,7 +275,6 @@ export default function Settings() {
                       <span className="role-badge">{admin.role}</span>
                     </td>
                     <td>{admin.status || "Active"}</td>
-                    <td>{admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : "—"}</td>
                     <td>
                       {admin._id === currentAdminId ? (
                         <span className="current-account-label">Current account</span>
