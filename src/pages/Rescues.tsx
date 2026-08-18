@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import LoadingState from "../components/LoadingState";
 import "./Rescues.css";
 import api from "../api/axios";
+import TablePagination from "../components/TablePagination";
 
 interface Rescue {
   _id: string;
@@ -27,6 +28,10 @@ export default function Rescues() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const paginatedRescues = filteredRescues.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   useEffect(() => {
     fetchRescues();
@@ -47,15 +52,33 @@ export default function Rescues() {
       );
     }
 
+    const query = searchQuery.trim().toLowerCase();
+    if (query) {
+      filtered = filtered.filter((rescue) => {
+        const address = rescue.rescueLocation?.address || rescue.reporterLocation?.address || "";
+        return (
+          rescue._id.toLowerCase().includes(query) ||
+          rescue.caseId?.toLowerCase().includes(query) ||
+          rescue.animalType?.toLowerCase().includes(query) ||
+          rescue.reporterName?.toLowerCase().includes(query) ||
+          address.toLowerCase().includes(query)
+        );
+      });
+    }
+
     setFilteredRescues(filtered);
-  }, [statusFilter, dateFilter, rescues]);
+  }, [statusFilter, dateFilter, searchQuery, rescues]);
 
   async function fetchRescues() {
     try {
       const response = await api.get("/api/rescues/all");
 
-      setRescues(response.data);
-      setFilteredRescues(response.data);
+      const newestFirst = [...response.data].sort(
+        (a: Rescue, b: Rescue) =>
+          new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+      );
+      setRescues(newestFirst);
+      setFilteredRescues(newestFirst);
     } catch (err: any) {
       setError(err.response?.data?.error || err.message);
     } finally {
@@ -66,6 +89,8 @@ export default function Rescues() {
   const handleReset = () => {
     setStatusFilter("");
     setDateFilter("");
+    setSearchQuery("");
+    setCurrentPage(1);
     setFilteredRescues(rescues);
   };
 
@@ -137,16 +162,31 @@ export default function Rescues() {
           </div>
 
           <div className="filter-box">
-            <p className="filter-title">Filter Cases</p>
-
             <div className="filter-row">
+              <div className="filter-field search-filter-field">
+                <input
+                  type="search"
+                  placeholder="Search by case ID, animal, reporter or location"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
+              <button className="dashboard-search-btn" onClick={() => setSearchQuery(searchQuery.trim())}>
+                Search
+              </button>
               <div className="filter-field">
                 <label>Date:</label>
 
                 <input
                   type="date"
                   value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
+                  onChange={(e) => {
+                    setDateFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
                 />
               </div>
 
@@ -155,7 +195,10 @@ export default function Rescues() {
 
                 <select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
                 >
                   <option value="">All Statuses</option>
                   <option value="pending">Pending</option>
@@ -191,7 +234,7 @@ export default function Rescues() {
 
                 <tbody>
                   {filteredRescues.length > 0 ? (
-                    filteredRescues.map((rescue) => {
+                    paginatedRescues.map((rescue) => {
                       const address =
                         rescue.rescueLocation?.address ||
                         rescue.reporterLocation?.address ||
@@ -258,11 +301,7 @@ export default function Rescues() {
                 </tbody>
               </table>
 
-              <div className="pagination-row">
-                <span>
-                  Showing {filteredRescues.length} of {rescues.length} cases
-                </span>
-              </div>
+              <TablePagination currentPage={currentPage} totalItems={filteredRescues.length} pageSize={pageSize} onPageChange={setCurrentPage} />
             </div>
           )}
         </div>

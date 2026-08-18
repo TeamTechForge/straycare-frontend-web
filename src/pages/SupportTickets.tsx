@@ -3,7 +3,7 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import LoadingState from "../components/LoadingState";
 import api from "../api/axios";
-import { confirmSensitiveAction } from "../utils/dashboardPreferences";
+import { useConfirmation } from "../components/ConfirmationProvider";
 import "./SupportTickets.css";
 
 interface Ticket {
@@ -21,11 +21,27 @@ interface Ticket {
 }
 
 export default function SupportTickets() {
+  const confirm = useConfirmation();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [statusFilter, setStatusFilter] = useState("All");
+
+  const filteredTickets = tickets
+    .filter((ticket) => statusFilter === "All" || ticket.status === statusFilter)
+    .sort((first, second) => {
+      const priority: Record<Ticket["status"], number> = {
+        Pending: 0,
+        "In Progress": 1,
+        Resolved: 2,
+        Closed: 3,
+      };
+      const statusDifference = priority[first.status] - priority[second.status];
+      if (statusDifference !== 0) return statusDifference;
+      return new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime();
+    });
 
   useEffect(() => {
     fetchTickets();
@@ -43,11 +59,14 @@ export default function SupportTickets() {
   };
 
   const handleStatusChange = async (id: string, status: Ticket["status"]) => {
-    if (
-      (status === "Closed" || status === "Resolved") &&
-      !confirmSensitiveAction(`Mark this support ticket as ${status.toLowerCase()}?`)
-    ) {
-      return;
+    if (status === "Closed" || status === "Resolved") {
+      const confirmed = await confirm({
+        title: `${status} support ticket?`,
+        message: `The ticket will be marked as ${status.toLowerCase()}.`,
+        confirmLabel: `Mark ${status}`,
+        tone: status === "Closed" ? "danger" : "warning",
+      });
+      if (!confirmed) return;
     }
 
     setUpdatingId(id);
@@ -122,15 +141,28 @@ export default function SupportTickets() {
             </div>
           )}
 
+          <div className="table-filter-bar support-status-filter">
+            <div className="table-date-filter">
+              <label>Status</label>
+              <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+                <option value="All">All tickets</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+          </div>
+
           {loading ? (
             <LoadingState label="Loading support tickets..." />
-          ) : tickets.length === 0 ? (
+          ) : filteredTickets.length === 0 ? (
             <div className="empty-state">
               <p>No support tickets found.</p>
             </div>
           ) : (
             <div className="tickets-list">
-              {tickets.map((ticket) => (
+              {filteredTickets.map((ticket) => (
                 <div className="ticket-card" key={ticket._id}>
                   <div className="ticket-header">
                     <div>

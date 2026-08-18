@@ -243,3 +243,13 @@
     width: auto;
   }
 }
+.settings-page .current-account-label {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e8f5e9;
+  color: #26733a;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}

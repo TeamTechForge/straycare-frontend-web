@@ -1,10 +1,10 @@
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import LoadingState from "../components/LoadingState";
 import api from "../api/axios";
-import { confirmSensitiveAction } from "../utils/dashboardPreferences";
+import { useConfirmation } from "../components/ConfirmationProvider";
 import NavTabs from "../components/NavTabs";
 import "./UserDocuments.css";
 
@@ -18,6 +18,7 @@ interface User {
   foundedYear?: string | number;
   bio?: string;
   createdAt?: string;
+  rejectionReason?: string;
 }
 
 interface Document {
@@ -26,20 +27,22 @@ interface Document {
 }
 
 export default function UserDocuments() {
+  const confirm = useConfirmation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [user, setUser] = useState<User | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [status, setStatus] = useState<string>("");
   const [updating, setUpdating] = useState(false);
+  const [showRejectionReasons, setShowRejectionReasons] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
   const [feedback, setFeedback] = useState<{ type: "success" | "warning"; message: string } | null>(null);
 
   const tabs = [
     { label: "Users", to: "/users/general" },
     { label: "Organizations", to: "/users/vets-ngos" },
-    { label: "User Verification", to: location.pathname },
+    { label: "User Verification", to: "/users/verifications" },
   ];
 
   useEffect(() => {
@@ -49,6 +52,7 @@ export default function UserDocuments() {
         setUser(res.data.user);
         setDocuments(res.data.documents);
         setStatus(res.data.user.status || "Pending");
+        setRejectionReason(res.data.user.rejectionReason || "");
       } catch (err) {
         console.error("Failed to fetch user documents:", err);
       }
@@ -58,18 +62,21 @@ export default function UserDocuments() {
   }, [id]);
 
   const handleStatusUpdate = async (newStatus: string) => {
-    if (
-      !confirmSensitiveAction(
-        `Are you sure you want to mark this verification as ${newStatus.toLowerCase()}?`
-      )
-    ) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: `${newStatus === "Verified" ? "Verify" : "Reject"} organization?`,
+      message: newStatus === "Verified"
+        ? "The organization will be approved and a verification email will be attempted."
+        : `The organization will be rejected for: ${rejectionReason}. This reason will be included in the email notice.`,
+      confirmLabel: newStatus === "Verified" ? "Verify" : "Reject",
+      tone: newStatus === "Verified" ? "warning" : "danger",
+    });
+    if (!confirmed) return;
 
     try {
       setUpdating(true);
       const response = await api.patch(`/api/users/${id}/status`, {
         status: newStatus,
+        rejectionReason: newStatus === "Rejected" ? rejectionReason : undefined,
       });
       setStatus(newStatus);
       setFeedback({
@@ -81,6 +88,20 @@ export default function UserDocuments() {
     } finally {
       setUpdating(false);
     }
+  };
+
+  const handleReject = () => {
+    if (!showRejectionReasons) {
+      setShowRejectionReasons(true);
+      return;
+    }
+
+    if (!rejectionReason) {
+      setFeedback({ type: "warning", message: "Select a rejection reason before continuing." });
+      return;
+    }
+
+    handleStatusUpdate("Rejected");
   };
 
   const isLocalPath = (url: string) => url.startsWith("file:///");
@@ -229,6 +250,23 @@ export default function UserDocuments() {
           </div>
 
           <div className="action-buttons">
+            {showRejectionReasons && status !== "Rejected" && (
+              <div className="rejection-reason-field">
+                <label htmlFor="rejection-reason">Rejection reason</label>
+                <select
+                  id="rejection-reason"
+                  value={rejectionReason}
+                  onChange={(event) => setRejectionReason(event.target.value)}
+                  disabled={updating}
+                >
+                  <option value="">Select a reason</option>
+                  <option value="Registration or license details could not be verified">Registration or license details could not be verified</option>
+                  <option value="Submitted document is unclear, expired, or incomplete">Submitted document is unclear, expired, or incomplete</option>
+                  <option value="Organization details do not match the submitted document">Organization details do not match the submitted document</option>
+                  <option value="Required verification information is missing">Required verification information is missing</option>
+                </select>
+              </div>
+            )}
             <button
               className="verify-btn"
               onClick={() => handleStatusUpdate("Verified")}
@@ -239,15 +277,15 @@ export default function UserDocuments() {
 
             <button
               className="reject-btn"
-              onClick={() => handleStatusUpdate("Rejected")}
+              onClick={handleReject}
               disabled={updating || status === "Rejected"}
             >
-              {status === "Rejected" ? "Rejected" : "Reject"}
+              {status === "Rejected" ? "Rejected" : showRejectionReasons ? "Continue Rejection" : "Reject"}
             </button>
 
             <button
               className="back-btn"
-              onClick={() => navigate("/users/vets-ngos")}
+              onClick={() => navigate("/users/verifications")}
             >
               Back
             </button>

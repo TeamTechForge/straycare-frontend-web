@@ -4,15 +4,22 @@ import Header from "../components/Header";
 import NavTabs from "../components/NavTabs";
 import LoadingState from "../components/LoadingState";
 import api from "../api/axios";
-import { confirmSensitiveAction } from "../utils/dashboardPreferences";
+import { useConfirmation } from "../components/ConfirmationProvider";
+import TablePagination from "../components/TablePagination";
 import "./ReportedUsers.css";
 
 export default function ReportedUsers() {
+  const confirm = useConfirmation();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actingOn, setActingOn] = useState(null);
   const [reviewingUserId, setReviewingUserId] = useState(null);
   const [reviewingReportId, setReviewingReportId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
     fetchReports();
@@ -37,7 +44,15 @@ export default function ReportedUsers() {
         ? "Send a warning and resolve this report?"
         : "Dismiss this report? No action will be taken on the user.";
 
-    if (action !== "Dismiss" && !confirmSensitiveAction(confirmMsg)) return;
+    if (action !== "Dismiss") {
+      const confirmed = await confirm({
+        title: `${action} user?`,
+        message: confirmMsg,
+        confirmLabel: action === "Suspend" ? "Suspend User" : "Warn User",
+        tone: action === "Suspend" ? "danger" : "warning",
+      });
+      if (!confirmed) return;
+    }
 
     setActingOn(report._id);
     try {
@@ -64,7 +79,23 @@ export default function ReportedUsers() {
     if (firstPending !== secondPending) return firstPending ? -1 : 1;
     return new Date(second.createdAt || 0).getTime() - new Date(first.createdAt || 0).getTime();
   };
-  const sortedReports = [...reports].sort(pendingFirst);
+  const filteredReports = reports.filter((report) => {
+    const query = searchQuery.trim().toLowerCase();
+    const matchesSearch = !query || [
+      report.reportedUserId,
+      report.reporterUserId,
+      report.reason,
+      report.description,
+      report.status,
+    ].some((value) => String(value || "").toLowerCase().includes(query));
+    const matchesDate = !dateFilter || (report.createdAt &&
+      new Date(report.createdAt).toLocaleDateString("en-CA") === dateFilter);
+    const matchesStatus = statusFilter === "All" ||
+      String(report.status || "Pending").toLowerCase() === statusFilter.toLowerCase();
+    return matchesSearch && matchesDate && matchesStatus;
+  });
+  const sortedReports = [...filteredReports].sort(pendingFirst);
+  const paginatedReports = sortedReports.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const selectedUserReports = reviewingUserId
     ? reports.filter((report) => report.reportedUserId === reviewingUserId).sort(pendingFirst)
     : [];
@@ -88,9 +119,42 @@ export default function ReportedUsers() {
             ]}
           />
 
+          <div className="table-filter-bar">
+            <div className="table-search-input">
+              <input
+                type="search"
+                placeholder="Search by user ID, reporter ID, reason, description or status"
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+            <button className="dashboard-search-btn" onClick={() => setSearchQuery(searchQuery.trim())}>Search</button>
+            <div className="table-date-filter">
+              <label>Date</label>
+              <input type="date" value={dateFilter} onChange={(event) => {
+                setDateFilter(event.target.value);
+                setCurrentPage(1);
+              }} />
+            </div>
+            <div className="table-date-filter">
+              <label>Status</label>
+              <select value={statusFilter} onChange={(event) => {
+                setStatusFilter(event.target.value);
+                setCurrentPage(1);
+              }}>
+                <option value="All">All statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
+
           {loading ? (
             <LoadingState label="Loading reports..." />
-          ) : reports.length === 0 ? (
+          ) : filteredReports.length === 0 ? (
             <div className="empty-state">
               <p>No reported users or posts found.</p>
             </div>
@@ -105,7 +169,7 @@ export default function ReportedUsers() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedReports.map((r) => {
+                  {paginatedReports.map((r) => {
                     const isResolved = r.status?.toLowerCase() === "resolved";
                     const isBusy = actingOn === r._id;
                     const reportCount = reports.filter(
@@ -147,6 +211,7 @@ export default function ReportedUsers() {
                   })}
                 </tbody>
               </table>
+              <TablePagination currentPage={currentPage} totalItems={sortedReports.length} pageSize={pageSize} onPageChange={setCurrentPage} />
             </div>
           )}
         </div>

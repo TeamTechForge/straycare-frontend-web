@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import api from "../api/axios";
-import { confirmSensitiveAction } from "../utils/dashboardPreferences";
+import { useConfirmation } from "../components/ConfirmationProvider";
+import TablePagination from "../components/TablePagination";
 import "./Settings.css";
 
 interface Admin {
@@ -14,6 +15,7 @@ interface Admin {
 }
 
 export default function Settings() {
+  const confirm = useConfirmation();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,22 +26,28 @@ export default function Settings() {
   const [error, setError] = useState("");
 
   const [admins, setAdmins] = useState<Admin[]>([]);
+  const [currentAdminId, setCurrentAdminId] = useState("");
+  const [adminSearch, setAdminSearch] = useState("");
+  const [adminPage, setAdminPage] = useState(1);
+  const pageSize = 10;
+
+  const filteredAdmins = admins.filter((admin) => {
+    const query = adminSearch.trim().toLowerCase();
+    const matchesSearch = !query || [admin.username, admin.email, admin.role, admin.status]
+      .some((value) => String(value || "").toLowerCase().includes(query));
+    return matchesSearch;
+  });
+  const paginatedAdmins = filteredAdmins.slice((adminPage - 1) * pageSize, adminPage * pageSize);
 
   const [newAdminName, setNewAdminName] = useState("");
   const [newAdminEmail, setNewAdminEmail] = useState("");
 
-  const [sessionTimeout, setSessionTimeout] = useState(
-    () => localStorage.getItem("dashboardSessionTimeout") || "30"
-  );
-  const [confirmActions, setConfirmActions] = useState(
-    () => localStorage.getItem("dashboardConfirmActions") !== "false"
-  );
-  const [refreshInterval, setRefreshInterval] = useState(
-    () => localStorage.getItem("dashboardRefreshInterval") || "0"
-  );
 
   useEffect(() => {
     fetchAdmins();
+    api.get("/api/admins/me")
+      .then((response) => setCurrentAdminId(response.data?._id || ""))
+      .catch((err) => console.error("Failed to fetch current admin:", err));
   }, []);
 
   const fetchAdmins = async () => {
@@ -136,8 +144,13 @@ export default function Settings() {
   };
 
   const handleRemoveAdmin = async (id: string) => {
-    if (!confirmSensitiveAction("Are you sure you want to remove this admin?"))
-      return;
+    const confirmed = await confirm({
+      title: "Remove administrator?",
+      message: "This administrator will immediately lose access to the dashboard. This action cannot be undone.",
+      confirmLabel: "Remove Admin",
+      tone: "danger",
+    });
+    if (!confirmed) return;
 
     try {
       await api.delete(`/api/admins/${id}`);
@@ -145,30 +158,9 @@ export default function Settings() {
       showMsg("Admin removed successfully!");
 
       fetchAdmins();
-    } catch {
-      showMsg("Failed to remove admin.", true);
+    } catch (err: any) {
+      showMsg(err.response?.data?.error || "Failed to remove admin.", true);
     }
-  };
-
-  const notifyRuntime = () => {
-    window.dispatchEvent(new Event("dashboard-preferences-changed"));
-  };
-
-  const updateSessionTimeout = (value: string) => {
-    setSessionTimeout(value);
-    localStorage.setItem("dashboardSessionTimeout", value);
-    notifyRuntime();
-  };
-
-  const updateConfirmActions = (value: boolean) => {
-    setConfirmActions(value);
-    localStorage.setItem("dashboardConfirmActions", String(value));
-  };
-
-  const updateRefreshInterval = (value: string) => {
-    setRefreshInterval(value);
-    localStorage.setItem("dashboardRefreshInterval", value);
-    notifyRuntime();
   };
 
   const EyeIcon = () => (
@@ -253,6 +245,16 @@ export default function Settings() {
           <div className="card">
             <h3 className="card-title">Admin Management</h3>
 
+            <div className="table-filter-bar">
+              <div className="table-search-input">
+                <input type="search" placeholder="Search by username, email, role or status" value={adminSearch} onChange={(event) => {
+                  setAdminSearch(event.target.value);
+                  setAdminPage(1);
+                }} />
+              </div>
+              <button type="button" className="dashboard-search-btn" onClick={() => setAdminSearch(adminSearch.trim())}>Search</button>
+            </div>
+
             <div className="admin-table-wrap">
               <table className="admin-table">
               <thead>
@@ -265,7 +267,7 @@ export default function Settings() {
                 </tr>
               </thead>
               <tbody>
-                {admins.map((admin) => (
+                {paginatedAdmins.map((admin) => (
                   <tr key={admin._id}>
                     <td>{admin.username}</td>
                     <td>{admin.email}</td>
@@ -274,17 +276,22 @@ export default function Settings() {
                     </td>
                     <td>{admin.status || "Active"}</td>
                     <td>
-                      <button
-                        className="btn danger"
-                        onClick={() => handleRemoveAdmin(admin._id)}
-                      >
-                        Remove
-                      </button>
+                      {admin._id === currentAdminId ? (
+                        <span className="current-account-label">Current account</span>
+                      ) : (
+                        <button
+                          className="btn danger"
+                          onClick={() => handleRemoveAdmin(admin._id)}
+                        >
+                          Remove
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
               </tbody>
               </table>
+              <TablePagination currentPage={adminPage} totalItems={filteredAdmins.length} pageSize={pageSize} onPageChange={setAdminPage} />
             </div>
 
             <form onSubmit={handleInviteAdmin}>
@@ -308,52 +315,6 @@ export default function Settings() {
 
               <button className="btn">Send Invitation</button>
             </form>
-          </div>
-
-          <div className="card">
-            <h3 className="card-title">Dashboard Preferences</h3>
-
-            <div className="preference-field">
-              <label htmlFor="session-timeout">Automatic session timeout</label>
-              <select
-                id="session-timeout"
-                value={sessionTimeout}
-                onChange={(event) => updateSessionTimeout(event.target.value)}
-              >
-                <option value="15">After 15 minutes</option>
-                <option value="30">After 30 minutes</option>
-                <option value="60">After 1 hour</option>
-                <option value="0">Never on this device</option>
-              </select>
-              <small>Log out after the selected period without activity.</small>
-            </div>
-
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={confirmActions}
-                onChange={(event) => updateConfirmActions(event.target.checked)}
-              />
-              <span>
-                <strong>Confirm sensitive actions</strong>
-                <small>Ask before removing admins or moderating reported users.</small>
-              </span>
-            </label>
-
-            <div className="preference-field">
-              <label htmlFor="refresh-interval">Automatic data refresh</label>
-              <select
-                id="refresh-interval"
-                value={refreshInterval}
-                onChange={(event) => updateRefreshInterval(event.target.value)}
-              >
-                <option value="0">Manual refresh only</option>
-                <option value="30">Every 30 seconds</option>
-                <option value="60">Every 1 minute</option>
-                <option value="300">Every 5 minutes</option>
-              </select>
-              <small>Reload the current page to retrieve the latest dashboard data.</small>
-            </div>
           </div>
 
         </div>

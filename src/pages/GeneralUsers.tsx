@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import api from "../api/axios";
 import NavTabs from "../components/NavTabs";
+import TablePagination from "../components/TablePagination";
 import "./GeneralUsers.css";
 
 interface User {
@@ -11,25 +11,41 @@ interface User {
   name: string;
   email: string;
   role: string;
+  createdAt?: string;
 }
 
 export default function GeneralUsers() {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [filters, setFilters] = useState({ role: "All" });
-  const location = useLocation();
-
-  const isVerificationPage =
-    location.pathname.includes("/users/") &&
-    location.pathname.includes("/documents");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const paginatedUsers = users.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const tabs = [
     { label: "Users", to: "/users/general" },
     { label: "Organizations", to: "/users/vets-ngos" },
-    isVerificationPage
-      ? { label: "User Verification", to: location.pathname }
-      : { label: "User Verification", disabled: true },
+    { label: "User Verification", to: "/users/verifications" },
   ];
+
+  const applyFilters = (role: string, query: string, date = dateFilter) => {
+    const normalizedQuery = query.trim().toLowerCase();
+    setUsers(
+      allUsers.filter((user) => {
+        const matchesRole = role === "All" || user.role === role;
+        const matchesSearch =
+          !normalizedQuery ||
+          user.name?.toLowerCase().includes(normalizedQuery) ||
+          user.email?.toLowerCase().includes(normalizedQuery) ||
+          user._id.toLowerCase().includes(normalizedQuery);
+        const matchesDate = !date || (user.createdAt &&
+          new Date(user.createdAt).toLocaleDateString("en-CA") === date);
+        return matchesRole && matchesSearch && matchesDate;
+      })
+    );
+  };
 
   const fetchUsers = async () => {
     try {
@@ -39,8 +55,11 @@ export default function GeneralUsers() {
         ["General User", "Rescuer", "Volunteer"].includes(u.role)
       );
 
-      setAllUsers(generalTabUsers);
-      setUsers(generalTabUsers);
+      const newestFirst = [...generalTabUsers].sort(
+        (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+      );
+      setAllUsers(newestFirst);
+      setUsers(newestFirst);
     } catch (err) {
       console.error("Failed to fetch users:", err);
     }
@@ -52,6 +71,9 @@ export default function GeneralUsers() {
 
   const handleReset = () => {
     setFilters({ role: "All" });
+    setSearchQuery("");
+    setDateFilter("");
+    setCurrentPage(1);
     setUsers(allUsers);
   };
 
@@ -79,9 +101,30 @@ export default function GeneralUsers() {
           <NavTabs tabs={tabs} />
 
           <div className="filter-box">
-            <p className="filter-title">Filter Users</p>
-
             <div className="filter-row">
+              <div className="filter-field search-filter-field">
+                <input
+                  type="search"
+                  placeholder="Search by name, email or user ID"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    applyFilters(filters.role, e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
+              <button className="dashboard-search-btn" onClick={() => applyFilters(filters.role, searchQuery)}>
+                Search
+              </button>
+              <div className="filter-field">
+                <label>Date:</label>
+                <input type="date" value={dateFilter} onChange={(event) => {
+                  setDateFilter(event.target.value);
+                  applyFilters(filters.role, searchQuery, event.target.value);
+                  setCurrentPage(1);
+                }} />
+              </div>
               <div className="filter-field">
                 <label>Role:</label>
 
@@ -92,11 +135,8 @@ export default function GeneralUsers() {
 
                     setFilters({ ...filters, role });
 
-                    setUsers(
-                      role === "All"
-                        ? allUsers
-                        : allUsers.filter((u) => u.role === role)
-                    );
+                    applyFilters(role, searchQuery);
+                    setCurrentPage(1);
                   }}
                 >
                   <option>All</option>
@@ -120,18 +160,19 @@ export default function GeneralUsers() {
                   <th>Name</th>
                   <th>Email</th>
                   <th>Role</th>
+                  <th>Registered</th>
                 </tr>
               </thead>
 
               <tbody>
                 {users.length === 0 ? (
                   <tr>
-                    <td colSpan={4} style={{ textAlign: "center", padding: "20px" }}>
+                    <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
                       No users found.
                     </td>
                   </tr>
                 ) : (
-                  users.map((user: User) => (
+                  paginatedUsers.map((user: User) => (
                     <tr key={user._id}>
                       <td style={{ fontFamily: "monospace", fontWeight: "bold" }}>
                         {user._id}
@@ -151,17 +192,14 @@ export default function GeneralUsers() {
                           {user.role}
                         </span>
                       </td>
+                      <td>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"}</td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
 
-            <div className="pagination-row">
-              <span>
-                Showing {users.length} of {allUsers.length} users
-              </span>
-            </div>
+            <TablePagination currentPage={currentPage} totalItems={users.length} pageSize={pageSize} onPageChange={setCurrentPage} />
           </div>
         </div>
       </main>
