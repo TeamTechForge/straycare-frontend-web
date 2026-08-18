@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import KpiCard from "../components/KpiCard";
 import api from "../api/axios";
+import TablePagination from "../components/TablePagination";
 
 interface Donation {
   _id: string;
@@ -26,6 +27,10 @@ export default function Donations() {
   const [allDonations, setAllDonations] = useState<Donation[]>([]);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [successTotal, setSuccessTotal] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const paginatedDonations = donations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const [filters, setFilters] = useState<Filters>({
     date: "",
@@ -41,8 +46,12 @@ export default function Donations() {
     try {
       const res = await api.get("/api/donations");
 
-      setAllDonations(res.data);
-      setDonations(res.data);
+      const newestFirst = [...res.data].sort(
+        (a: Donation, b: Donation) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+      setAllDonations(newestFirst);
+      setDonations(newestFirst);
 
       const successSum = res.data
         .filter((d: Donation) => d.status === "SUCCESS")
@@ -58,7 +67,7 @@ export default function Donations() {
     }
   };
 
-  const applyFilters = (nextFilters: Filters) => {
+  const applyFilters = (nextFilters: Filters, query = searchQuery) => {
     let filtered = allDonations;
 
     if (nextFilters.date) {
@@ -87,6 +96,15 @@ export default function Donations() {
       );
     }
 
+    const normalizedQuery = query.trim().toLowerCase();
+    if (normalizedQuery) {
+      filtered = filtered.filter(
+        (d) =>
+          d.organization?.toLowerCase().includes(normalizedQuery) ||
+          d.orderId?.toLowerCase().includes(normalizedQuery)
+      );
+    }
+
     setDonations(filtered);
   };
 
@@ -101,6 +119,7 @@ export default function Donations() {
 
     setFilters(nextFilters);
     applyFilters(nextFilters);
+    setCurrentPage(1);
   };
 
   const handleReset = () => {
@@ -111,6 +130,8 @@ export default function Donations() {
     };
 
     setFilters(cleared);
+    setSearchQuery("");
+    setCurrentPage(1);
     setDonations(allDonations);
   };
 
@@ -148,11 +169,22 @@ export default function Donations() {
           </div>
 
           <div className="filter-box">
-            <p className="filter-title">
-              Filter Transactions
-            </p>
-
             <div className="filter-row">
+              <div className="filter-field search-filter-field">
+                <input
+                  type="search"
+                  placeholder="Search by organization name or order ID"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    applyFilters(filters, e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
+              <button className="dashboard-search-btn" onClick={() => applyFilters(filters, searchQuery)}>
+                Search
+              </button>
               <div className="filter-field">
                 <label>Date:</label>
                 <input
@@ -239,7 +271,7 @@ export default function Donations() {
                     </td>
                   </tr>
                 ) : (
-                  donations.map((d: Donation) => (
+                  paginatedDonations.map((d: Donation) => (
                     <tr key={d._id}>
                       <td>{d.orderId}</td>
                       <td>{d.organization}</td>
@@ -275,12 +307,7 @@ export default function Donations() {
               </tbody>
             </table>
 
-            <div className="pagination-row">
-              <span>
-                Showing {donations.length} of{" "}
-                {allDonations.length} transactions
-              </span>
-            </div>
+            <TablePagination currentPage={currentPage} totalItems={donations.length} pageSize={pageSize} onPageChange={setCurrentPage} />
           </div>
         </div>
       </main>

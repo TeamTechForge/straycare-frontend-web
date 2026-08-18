@@ -3,7 +3,7 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import LoadingState from "../components/LoadingState";
 import api from "../api/axios";
-import { confirmSensitiveAction } from "../utils/dashboardPreferences";
+import { useConfirmation } from "../components/ConfirmationProvider";
 import "./SupportTickets.css";
 
 interface Ticket {
@@ -21,6 +21,7 @@ interface Ticket {
 }
 
 export default function SupportTickets() {
+  const confirm = useConfirmation();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -43,11 +44,14 @@ export default function SupportTickets() {
   };
 
   const handleStatusChange = async (id: string, status: Ticket["status"]) => {
-    if (
-      (status === "Closed" || status === "Resolved") &&
-      !confirmSensitiveAction(`Mark this support ticket as ${status.toLowerCase()}?`)
-    ) {
-      return;
+    if (status === "Closed" || status === "Resolved") {
+      const confirmed = await confirm({
+        title: `${status} support ticket?`,
+        message: `The ticket will be marked as ${status.toLowerCase()}.`,
+        confirmLabel: `Mark ${status}`,
+        tone: status === "Closed" ? "danger" : "warning",
+      });
+      if (!confirmed) return;
     }
 
     setUpdatingId(id);

@@ -5,6 +5,8 @@ import NavTabs from "../components/NavTabs";
 import Sidebar from "../components/Sidebar";
 import api from "../api/axios";
 import "./Reports.css";
+import { useConfirmation } from "../components/ConfirmationProvider";
+import TablePagination from "../components/TablePagination";
 
 type CommunityPost = {
   _id: string;
@@ -34,11 +36,37 @@ const imageUrl = (path?: string) => {
 };
 
 export default function Reports() {
+  const confirm = useConfirmation();
   const [reports, setReports] = useState<PostReport[]>([]);
   const [selected, setSelected] = useState<PostReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [actingOn, setActingOn] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  const filteredReports = reports.filter((report) => {
+    const query = searchQuery.trim().toLowerCase();
+    const matchesSearch = !query || [
+      report.post?.title,
+      report.post?.category,
+      report.postId,
+      report.reporterUserId,
+      report.reason,
+      report.status,
+    ].some((value) => String(value || "").toLowerCase().includes(query));
+    const matchesDate = !dateFilter || (report.createdAt &&
+      new Date(report.createdAt).toLocaleDateString("en-CA") === dateFilter);
+    return matchesSearch && matchesDate;
+  }).sort((first, second) => {
+    const firstPending = first.status?.toLowerCase() === "pending";
+    const secondPending = second.status?.toLowerCase() === "pending";
+    if (firstPending !== secondPending) return firstPending ? -1 : 1;
+    return new Date(second.createdAt || 0).getTime() - new Date(first.createdAt || 0).getTime();
+  });
+  const paginatedReports = filteredReports.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const fetchReports = async () => {
     setError("");
@@ -72,7 +100,13 @@ export default function Reports() {
   };
 
   const removePost = async (report: PostReport) => {
-    if (!window.confirm("Remove this community post? All pending reports for it will be resolved.")) return;
+    const confirmed = await confirm({
+      title: "Remove reported post?",
+      message: "The community post will be removed and all pending reports for it will be resolved.",
+      confirmLabel: "Remove Post",
+      tone: "danger",
+    });
+    if (!confirmed) return;
     setActingOn(report._id);
     try {
       await api.delete(`/api/admin/reported-posts/${report._id}/post`);
@@ -99,9 +133,31 @@ export default function Reports() {
             { label: "Reported Posts", to: "/reports/posts" },
           ]} />
 
+          <div className="table-filter-bar">
+            <div className="table-search-input">
+              <input
+                type="search"
+                placeholder="Search by post title, category, post ID, reporter ID, reason or status"
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+            <button className="dashboard-search-btn" onClick={() => setSearchQuery(searchQuery.trim())}>Search</button>
+            <div className="table-date-filter">
+              <label>Date</label>
+              <input type="date" value={dateFilter} onChange={(event) => {
+                setDateFilter(event.target.value);
+                setCurrentPage(1);
+              }} />
+            </div>
+          </div>
+
           {loading ? <LoadingState label="Loading reported posts..." /> : error ? (
             <div className="reports-message error-message">{error}</div>
-          ) : reports.length === 0 ? (
+          ) : filteredReports.length === 0 ? (
             <div className="reports-message">No reported posts found.</div>
           ) : (
             <div className="reported-posts-table-wrap">
@@ -109,7 +165,7 @@ export default function Reports() {
                 <thead><tr>
                   <th>Post</th><th>Reason</th><th>Reported By</th><th>Date</th><th>Status</th><th>Actions</th>
                 </tr></thead>
-                <tbody>{reports.map((report) => {
+                <tbody>{paginatedReports.map((report) => {
                   const pending = report.status?.toLowerCase() === "pending";
                   const busy = actingOn === report._id;
                   return <tr key={report._id}>
@@ -125,6 +181,7 @@ export default function Reports() {
                   </tr>;
                 })}</tbody>
               </table>
+              <TablePagination currentPage={currentPage} totalItems={filteredReports.length} pageSize={pageSize} onPageChange={setCurrentPage} />
             </div>
           )}
         </div>

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import type { ReactNode } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -23,41 +24,20 @@ import SupportTickets from "./pages/SupportTickets";
 import Logout from "./pages/Logout";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ConfirmationProvider } from "./components/ConfirmationProvider";
 
 const PUBLIC_ROUTES = ["/", "/login", "/forgot-password", "/reset-password"];
-const AUTO_REFRESH_ROUTES = [
-  "/home",
-  "/donations",
-  "/users/general",
-  "/users/vets-ngos",
-  "/reports/users",
-  "/reports/posts",
-  "/rescues",
-  "/analytics",
-];
-
 function DashboardRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [preferenceVersion, setPreferenceVersion] = useState(0);
   const isDashboardRoute = !PUBLIC_ROUTES.includes(location.pathname);
-
-  useEffect(() => {
-    const applyPreferences = () => setPreferenceVersion((version) => version + 1);
-    window.addEventListener("dashboard-preferences-changed", applyPreferences);
-    window.addEventListener("storage", applyPreferences);
-    return () => {
-      window.removeEventListener("dashboard-preferences-changed", applyPreferences);
-      window.removeEventListener("storage", applyPreferences);
-    };
-  }, []);
+  const protect = (page: ReactNode) => <ProtectedRoute>{page}</ProtectedRoute>;
 
   useEffect(() => {
     if (!isDashboardRoute || !localStorage.getItem("token")) return;
 
-    const minutes = Number(localStorage.getItem("dashboardSessionTimeout") || "30");
-    if (minutes <= 0) return;
+    const minutes = 30;
 
     let timeoutId = window.setTimeout(logOutForInactivity, minutes * 60 * 1000);
 
@@ -89,41 +69,29 @@ function DashboardRoutes() {
         window.removeEventListener(eventName, resetTimeout)
       );
     };
-  }, [isDashboardRoute, location.pathname, navigate, preferenceVersion]);
-
-  useEffect(() => {
-    if (!AUTO_REFRESH_ROUTES.includes(location.pathname) || !localStorage.getItem("token")) return;
-
-    const seconds = Number(localStorage.getItem("dashboardRefreshInterval") || "0");
-    if (seconds <= 0) return;
-
-    const intervalId = window.setInterval(
-      () => setRefreshKey((key) => key + 1),
-      seconds * 1000
-    );
-    return () => window.clearInterval(intervalId);
-  }, [isDashboardRoute, location.pathname, preferenceVersion]);
+  }, [isDashboardRoute, location.pathname, navigate]);
 
   return (
-    <Routes key={`${location.pathname}:${refreshKey}`}>
+    <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/notifications" element={<Notifications />} />
-      <Route path="/donations" element={<Donations />} />
-      <Route path="/users/general" element={<GeneralUsers />} />
-      <Route path="/users/vets-ngos" element={<VetsNgoUsers />} />
-      <Route path="/users/:id/documents" element={<UserDocuments />} />
-      <Route path="/reports" element={<Reports />} />
-      <Route path="/reports/users" element={<ReportedUsers />} />
-      <Route path="/reports/posts" element={<Reports />} />
-      <Route path="/rescues" element={<Rescues />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/analytics" element={<Analytics />} />
-      <Route path="/support-tickets" element={<SupportTickets />} />
-      <Route path="/logout" element={<Logout />} />
+      <Route path="/home" element={protect(<Home />)} />
+      <Route path="/notifications" element={protect(<Notifications />)} />
+      <Route path="/donations" element={protect(<Donations />)} />
+      <Route path="/users/general" element={protect(<GeneralUsers />)} />
+      <Route path="/users/vets-ngos" element={protect(<VetsNgoUsers />)} />
+      <Route path="/users/verifications" element={protect(<VetsNgoUsers />)} />
+      <Route path="/users/:id/documents" element={protect(<UserDocuments />)} />
+      <Route path="/reports" element={protect(<Reports />)} />
+      <Route path="/reports/users" element={protect(<ReportedUsers />)} />
+      <Route path="/reports/posts" element={protect(<Reports />)} />
+      <Route path="/rescues" element={protect(<Rescues />)} />
+      <Route path="/settings" element={protect(<Settings />)} />
+      <Route path="/analytics" element={protect(<Analytics />)} />
+      <Route path="/support-tickets" element={protect(<SupportTickets />)} />
+      <Route path="/logout" element={protect(<Logout />)} />
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
@@ -132,7 +100,7 @@ function DashboardRoutes() {
 function App() {
   return (
     <Router>
-      <DashboardRoutes />
+      <ConfirmationProvider><DashboardRoutes /></ConfirmationProvider>
     </Router>
   );
 }

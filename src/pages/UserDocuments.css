@@ -161,6 +161,8 @@
 /* Action Buttons */
 .user-docs-container .action-buttons {
   display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 6px;
 }
@@ -203,6 +205,29 @@
 
 .user-docs-container .back-btn:hover {
   background: #cbd5e0;
+}
+
+.user-docs-container .rejection-reason-field {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  gap: 5px;
+  max-width: 520px;
+}
+
+.user-docs-container .rejection-reason-field label {
+  color: #412828;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.user-docs-container .rejection-reason-field select {
+  background: #fff;
+  border: 1px solid #f5a623;
+  border-radius: 6px;
+  color: #374151;
+  font-size: 11px;
+  padding: 7px 9px;
 }
 
 .user-docs-container .verification-feedback {
