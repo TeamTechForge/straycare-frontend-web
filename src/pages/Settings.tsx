@@ -27,6 +27,7 @@ export default function Settings() {
   const [error, setError] = useState("");
 
   const [admins, setAdmins] = useState<Admin[]>([]);
+  const [currentAdminId, setCurrentAdminId] = useState("");
   const [adminSearch, setAdminSearch] = useState("");
   const [adminDate, setAdminDate] = useState("");
   const [adminPage, setAdminPage] = useState(1);
@@ -48,6 +49,9 @@ export default function Settings() {
 
   useEffect(() => {
     fetchAdmins();
+    api.get("/api/admins/me")
+      .then((response) => setCurrentAdminId(response.data?._id || ""))
+      .catch((err) => console.error("Failed to fetch current admin:", err));
   }, []);
 
   const fetchAdmins = async () => {
@@ -285,12 +289,16 @@ export default function Settings() {
                     <td>{admin.status || "Active"}</td>
                     <td>{admin.createdAt ? new Date(admin.createdAt).toLocaleDateString() : "—"}</td>
                     <td>
-                      <button
-                        className="btn danger"
-                        onClick={() => handleRemoveAdmin(admin._id)}
-                      >
-                        Remove
-                      </button>
+                      {admin._id === currentAdminId ? (
+                        <span className="current-account-label">Current account</span>
+                      ) : (
+                        <button
+                          className="btn danger"
+                          onClick={() => handleRemoveAdmin(admin._id)}
+                        >
+                          Remove
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
