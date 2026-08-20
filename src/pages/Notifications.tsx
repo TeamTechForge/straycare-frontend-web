@@ -31,6 +31,7 @@ export default function Notifications() {
       const res = await api.get("/api/admin-notifications");
       setNotifications(res.data);
 
+      // Visiting this page also marks admin-targeted announcements as seen.
       const adminNotifications = (res.data || []).filter((n: Notification) =>
         Array.isArray(n.audience)
           ? n.audience.includes("admin")
@@ -56,6 +57,7 @@ export default function Notifications() {
   }, []);
 
   const toggleAudience = (value: string) => {
+    // An empty selection represents the All Users option.
     setAudience((prev) =>
       prev.includes(value) ? prev.filter((a) => a !== value) : [...prev, value]
     );
@@ -82,6 +84,7 @@ export default function Notifications() {
   };
 
   const formatAudience = (audience: string[] | string) => {
+    // Convert stored audience keys into readable labels for the sent list.
     if (!audience || (Array.isArray(audience) && audience.length === 0)) {
       return "All Users";
     }

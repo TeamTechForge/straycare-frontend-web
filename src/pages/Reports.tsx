@@ -30,6 +30,7 @@ type PostReport = {
 };
 
 const imageUrl = (path?: string) => {
+  // Uploaded image paths are converted to absolute backend URLs for the browser.
   if (!path) return "";
   if (/^https?:\/\//i.test(path)) return path;
   return `${String(api.defaults.baseURL || "").replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
@@ -64,6 +65,7 @@ export default function Reports() {
       String(report.status || "pending").toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesDate && matchesStatus;
   }).sort((first, second) => {
+    // Show reports awaiting review first, with newest records above older ones.
     const firstPending = first.status?.toLowerCase() === "pending";
     const secondPending = second.status?.toLowerCase() === "pending";
     if (firstPending !== secondPending) return firstPending ? -1 : 1;
@@ -103,6 +105,7 @@ export default function Reports() {
   };
 
   const removePost = async (report: PostReport) => {
+    // Removing a post also resolves the other pending reports linked to it.
     const confirmed = await confirm({
       title: "Remove reported post?",
       message: "The community post will be removed and all pending reports for it will be resolved.",

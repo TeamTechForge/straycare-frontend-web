@@ -15,6 +15,7 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
       return;
     }
 
+    // A stored token is not trusted until the backend confirms the admin account.
     api.get("/api/admins/me")
       .then(() => setAuthorized(true))
       .catch(() => {
@@ -24,7 +25,11 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
       });
   }, []);
 
-  if (authorized === null) return <LoadingState label="Verifying admin access..." />;
-  if (!authorized) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (authorized === null) {
+    return <LoadingState label="Verifying admin access..." />;
+  }
+  if (!authorized) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
   return children;
 }

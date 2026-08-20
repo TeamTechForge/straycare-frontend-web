@@ -46,6 +46,7 @@ export default function UserDocuments() {
   ];
 
   useEffect(() => {
+    // Load the organization profile and its verification documents together.
     async function fetchData() {
       try {
         const res = await api.get(`/api/users/${id}/documents`);
@@ -62,6 +63,7 @@ export default function UserDocuments() {
   }, [id]);
 
   const handleStatusUpdate = async (newStatus: string) => {
+    // Confirm before changing verification state or attempting its email notice.
     const confirmed = await confirm({
       title: `${newStatus === "Verified" ? "Verify" : "Reject"} organization?`,
       message: newStatus === "Verified"

@@ -32,6 +32,7 @@ export default function SupportTickets() {
   const filteredTickets = tickets
     .filter((ticket) => statusFilter === "All" || ticket.status === statusFilter)
     .sort((first, second) => {
+      // Tickets needing attention appear before completed tickets.
       const priority: Record<Ticket["status"], number> = {
         Pending: 0,
         "In Progress": 1,
@@ -88,6 +89,7 @@ export default function SupportTickets() {
 
     setUpdatingId(id);
     try {
+      // Saving a reply moves the ticket into progress; the backend sends the email.
       await api.patch(`/api/support/${id}`, {
         adminReply: reply.trim(),
         status: "In Progress",

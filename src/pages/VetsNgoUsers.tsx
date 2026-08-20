@@ -30,6 +30,7 @@ export default function VetsNgoUsers() {
   const pageSize = 10;
   const navigate = useNavigate();
   const location = useLocation();
+  // The same dataset has a compact organization table and a verification view.
   const isVerificationView = location.pathname === "/users/verifications";
 
   const tabs = [
@@ -38,6 +39,7 @@ export default function VetsNgoUsers() {
     { label: "User Verification", to: "/users/verifications" },
   ];
   const filteredUsers = users.filter((user) => {
+    // Verification status is relevant only in the verification view.
     const query = searchQuery.trim().toLowerCase();
     const matchesSearch = !query ||
       (user.name || user.fullName || "").toLowerCase().includes(query) ||
@@ -56,6 +58,7 @@ export default function VetsNgoUsers() {
   const fetchUsers = async () => {
     try {
       const res = await api.get("/api/users/vets-ngos");
+      // Pending reviews take priority; remaining records stay newest first.
       const sortedUsers = [...res.data].sort((first: User, second: User) => {
         if (isVerificationView) {
           const firstPending = (first.status || "Pending") === "Pending";

@@ -47,6 +47,7 @@ export default function ResetPassword() {
     try {
       setLoading(true);
 
+      // Invitations use a URL token; forgotten passwords use the emailed code.
       const payloadToken = isInvite ? token : resetCode;
 
       const res = isInvite
@@ -72,8 +73,9 @@ export default function ResetPassword() {
         <div className="login-card auth-card">
           <div className="card-form" style={{ flex: 1, textAlign: "center" }}>
             <p className="error-message">Invalid or missing invite token.</p>
-            
-              <a href="#"
+
+            <a
+              href="#"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/login");
@@ -168,9 +170,12 @@ export default function ResetPassword() {
             </button>
           </form>
 
-          <div className="form-footer" style={{ justifyContent: "center", marginTop: "12px" }}>
-            
-              <a href="#"
+          <div
+            className="form-footer"
+            style={{ justifyContent: "center", marginTop: "12px" }}
+          >
+            <a
+              href="#"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/login");

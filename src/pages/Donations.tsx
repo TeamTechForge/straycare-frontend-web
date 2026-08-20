@@ -30,7 +30,10 @@ export default function Donations() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
-  const paginatedDonations = donations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const paginatedDonations = donations.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const [filters, setFilters] = useState<Filters>({
     date: "",
@@ -53,6 +56,7 @@ export default function Donations() {
       setAllDonations(newestFirst);
       setDonations(newestFirst);
 
+      // KPI totals always use the full result, not the filtered table rows.
       const successSum = res.data
         .filter((d: Donation) => d.status === "SUCCESS")
         .reduce(
@@ -68,6 +72,7 @@ export default function Donations() {
   };
 
   const applyFilters = (nextFilters: Filters, query = searchQuery) => {
+    // Apply every active filter to the original collection to avoid stacked filters.
     let filtered = allDonations;
 
     if (nextFilters.date) {
@@ -182,7 +187,10 @@ export default function Donations() {
                   }}
                 />
               </div>
-              <button className="dashboard-search-btn" onClick={() => applyFilters(filters, searchQuery)}>
+              <button
+                className="dashboard-search-btn"
+                onClick={() => applyFilters(filters, searchQuery)}
+              >
                 Search
               </button>
               <div className="filter-field">
@@ -307,7 +315,12 @@ export default function Donations() {
               </tbody>
             </table>
 
-            <TablePagination currentPage={currentPage} totalItems={donations.length} pageSize={pageSize} onPageChange={setCurrentPage} />
+            <TablePagination
+              currentPage={currentPage}
+              totalItems={donations.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </main>

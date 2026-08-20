@@ -28,12 +28,14 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { ConfirmationProvider } from "./components/ConfirmationProvider";
 
 const PUBLIC_ROUTES = ["/", "/login", "/forgot-password", "/reset-password"];
+
 function DashboardRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
   const isDashboardRoute = !PUBLIC_ROUTES.includes(location.pathname);
   const protect = (page: ReactNode) => <ProtectedRoute>{page}</ProtectedRoute>;
 
+  // End authenticated dashboard sessions after 30 minutes without activity.
   useEffect(() => {
     if (!isDashboardRoute || !localStorage.getItem("token")) return;
 
@@ -100,7 +102,10 @@ function DashboardRoutes() {
 function App() {
   return (
     <Router>
-      <ConfirmationProvider><DashboardRoutes /></ConfirmationProvider>
+      {/* Makes the same in-app confirmation dialog available on every page. */}
+      <ConfirmationProvider>
+        <DashboardRoutes />
+      </ConfirmationProvider>
     </Router>
   );
 }
