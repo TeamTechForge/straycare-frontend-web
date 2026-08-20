@@ -2,6 +2,10 @@
 
 The StrayCare web client is an administrative dashboard built with React, TypeScript, Vite, Material UI, React Router, and Recharts. It provides browser-based tools for managing users, donations, rescues, reports, notifications, and other platform operations.
 
+## Project overview
+
+StrayCare is an animal-welfare platform that helps people report stray animals, coordinate rescues, connect with rescuers and veterinary professionals, and support organizations through donations. This dashboard is one of three applications in the platform, alongside the Expo mobile client and the shared Node.js backend API with MongoDB and Socket.IO real-time services.
+
 ## Requirements
 
 - Node.js and npm
