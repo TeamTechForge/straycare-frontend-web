@@ -52,7 +52,7 @@ export default function GeneralUsers() {
       const res = await api.get("/api/users/all");
 
       const generalTabUsers = res.data.filter((u: User) =>
-        ["General User", "Rescuer", "Volunteer"].includes(u.role)
+        ["General User", "Volunteer"].includes(u.role)
       );
 
       const newestFirst = [...generalTabUsers].sort(
@@ -81,8 +81,6 @@ export default function GeneralUsers() {
     switch (role) {
       case "General User":
         return { backgroundColor: "#DBEAFE", color: "#2563EB" };
-      case "Rescuer":
-        return { backgroundColor: "#FEF3C7", color: "#D97706" };
       case "Volunteer":
         return { backgroundColor: "#DCFCE7", color: "#16A34A" };
       default:
@@ -141,7 +139,6 @@ export default function GeneralUsers() {
                 >
                   <option>All</option>
                   <option>General User</option>
-                  <option>Rescuer</option>
                   <option>Volunteer</option>
                 </select>
               </div>
