@@ -37,6 +37,7 @@ export default function ReportedUsers() {
   };
 
   const handleAction = async (report, action) => {
+    // Warning and suspension require confirmation before moderation is submitted.
     const confirmMsg =
       action === "Suspend"
         ? "Are you sure you want to suspend this user's account?"
@@ -74,6 +75,7 @@ export default function ReportedUsers() {
   };
 
   const pendingFirst = (first, second) => {
+    // Keep reports needing attention above resolved reports, then sort by date.
     const firstPending = first.status?.toLowerCase() === "pending";
     const secondPending = second.status?.toLowerCase() === "pending";
     if (firstPending !== secondPending) return firstPending ? -1 : 1;
@@ -96,6 +98,7 @@ export default function ReportedUsers() {
   });
   const sortedReports = [...filteredReports].sort(pendingFirst);
   const paginatedReports = sortedReports.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  // The review dialog groups every report made against the selected user.
   const selectedUserReports = reviewingUserId
     ? reports.filter((report) => report.reportedUserId === reviewingUserId).sort(pendingFirst)
     : [];

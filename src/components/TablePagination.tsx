@@ -13,6 +13,7 @@ export default function TablePagination({
   pageSize = 10,
   onPageChange,
 }: TablePaginationProps) {
+  // Clamp the page number when filtering reduces the available rows.
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const firstItem = totalItems === 0 ? 0 : (safePage - 1) * pageSize + 1;

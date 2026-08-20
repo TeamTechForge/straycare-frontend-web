@@ -2,7 +2,7 @@ import "./Login.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
-import logo from '../assets/LogoNew.png';
+import logo from "../assets/LogoNew.png";
 import loginBg1 from "../assets/Login01.jpg";
 import loginBg2 from "../assets/Login02.jpg";
 import loginBg3 from "../assets/Login03.jpg";
@@ -20,6 +20,7 @@ export default function Login() {
   const images = [loginBg1, loginBg2, loginBg3, loginBg4];
 
   useEffect(() => {
+    // Display a clear message when the inactivity timer ended the last session.
     if (sessionStorage.getItem("dashboardSessionExpired") === "true") {
       setError("Your session expired due to inactivity. Please sign in again.");
       sessionStorage.removeItem("dashboardSessionExpired");
@@ -34,9 +35,7 @@ export default function Login() {
     return () => clearInterval(timer);
   }, [images.length]);
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -45,15 +44,15 @@ export default function Login() {
         password,
       });
 
+      // Keep the token and admin ID for protected requests and read tracking.
       if (res.data.token) {
-  localStorage.setItem("token", res.data.token);
-  localStorage.setItem("adminId", res.data.admin?.id || "");
-  setError("");
-  navigate("/home");
-} else {
-  setError(res.data.error || "Login failed");
-}
-
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("adminId", res.data.admin?.id || "");
+        setError("");
+        navigate("/home");
+      } else {
+        setError(res.data.error || "Login failed");
+      }
     } catch (err: any) {
       console.error("Login error:", err);
 
@@ -68,7 +67,6 @@ export default function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
-
         <div className="card-image">
           {images.map((img, i) => (
             <div
@@ -88,10 +86,7 @@ export default function Login() {
             ))}
           </div>
         </div>
-
-
         <div className="card-form">
-
           <div className="logo-wrap">
             <img src={logo} alt="StrayCare Logo" />
           </div>
@@ -100,13 +95,7 @@ export default function Login() {
             <h1>Welcome back!</h1>
             <p>Sign in to your admin dashboard</p>
           </div>
-
-
-          <form
-            className="login-form"
-            onSubmit={handleSubmit}
-          >
-
+          <form className="login-form" onSubmit={handleSubmit}>
             <div className="input-group">
               <label>Email</label>
 
@@ -116,31 +105,21 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-
             </div>
-
-
             <div className="input-group">
-
               <label>Password</label>
-
               <div className="password-wrapper">
-
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-
-
                 <button
                   type="button"
                   className="password-toggle"
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  onClick={() =>
-                    setShowPassword(!showPassword)
-                  }
+                  onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
                     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -155,10 +134,7 @@ export default function Login() {
                 </button>
 
               </div>
-
             </div>
-
-
             <div className="form-footer">
               <a
                 href="#"
@@ -171,27 +147,13 @@ export default function Login() {
                 Forgot password?
               </a>
             </div>
+            {error && <p className="error-message">{error}</p>}
 
-
-            {error && (
-              <p className="error-message">
-                {error}
-              </p>
-            )}
-
-
-            <button
-              type="submit"
-              className="login-btn"
-            >
+            <button type="submit" className="login-btn">
               Sign in
             </button>
-
-
           </form>
-
         </div>
-
       </div>
     </div>
   );

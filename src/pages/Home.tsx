@@ -77,6 +77,7 @@ export default function Home() {
   const [showPreviousNotifications, setShowPreviousNotifications] = useState<boolean>(false);
   const bellRef = useRef<HTMLDivElement>(null);
   const adminId = localStorage.getItem("adminId") || "current";
+  // Read state is stored per admin so one account does not clear another's badge.
   const lastSeenKey = `adminNotificationsLastSeen:${adminId}`;
 
   useEffect(() => {
@@ -102,6 +103,7 @@ export default function Home() {
         return n.audience === "Admins";
       });
 
+      // Only notifications newer than the saved timestamp count as unread.
       const lastSeen = localStorage.getItem(lastSeenKey);
       const unread = lastSeen
         ? forAdmins.filter(
@@ -127,6 +129,7 @@ export default function Home() {
   useEffect(() => {
     if (!bellOpen) return;
 
+    // Close the notification panel when the admin clicks elsewhere.
     const handleOutsideClick = (event: MouseEvent) => {
       if (bellRef.current && !bellRef.current.contains(event.target as Node)) {
         closeBell();
@@ -145,6 +148,7 @@ export default function Home() {
 
     setBellOpen((open) => {
       const nextOpen = !open;
+      // Opening the bell records the newest visible notification as seen.
       if (nextOpen && unreadNotificationCount > 0 && adminNotifications.length > 0) {
         const newestTimestamp = adminNotifications.reduce(
           (latest, notification) =>

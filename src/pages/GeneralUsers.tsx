@@ -22,7 +22,10 @@ export default function GeneralUsers() {
   const [dateFilter, setDateFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
-  const paginatedUsers = users.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const paginatedUsers = users.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const tabs = [
     { label: "Users", to: "/users/general" },
@@ -31,6 +34,7 @@ export default function GeneralUsers() {
   ];
 
   const applyFilters = (role: string, query: string, date = dateFilter) => {
+    // Search, role, and registration date filters are combined in one pass.
     const normalizedQuery = query.trim().toLowerCase();
     setUsers(
       allUsers.filter((user) => {
@@ -51,6 +55,7 @@ export default function GeneralUsers() {
     try {
       const res = await api.get("/api/users/all");
 
+      // Organizations have a separate tab, so this table shows only these roles.
       const generalTabUsers = res.data.filter((u: User) =>
         ["General User", "Volunteer"].includes(u.role)
       );
@@ -196,7 +201,12 @@ export default function GeneralUsers() {
               </tbody>
             </table>
 
-            <TablePagination currentPage={currentPage} totalItems={users.length} pageSize={pageSize} onPageChange={setCurrentPage} />
+            <TablePagination
+              currentPage={currentPage}
+              totalItems={users.length}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </main>

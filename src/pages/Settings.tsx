@@ -37,13 +37,16 @@ export default function Settings() {
       .some((value) => String(value || "").toLowerCase().includes(query));
     return matchesSearch;
   });
-  const paginatedAdmins = filteredAdmins.slice((adminPage - 1) * pageSize, adminPage * pageSize);
+  const paginatedAdmins = filteredAdmins.slice(
+    (adminPage - 1) * pageSize,
+    adminPage * pageSize
+  );
 
   const [newAdminName, setNewAdminName] = useState("");
   const [newAdminEmail, setNewAdminEmail] = useState("");
 
-
   useEffect(() => {
+    // The current account ID prevents an administrator from removing themselves.
     fetchAdmins();
     api.get("/api/admins/me")
       .then((response) => setCurrentAdminId(response.data?._id || ""))
@@ -119,6 +122,7 @@ export default function Settings() {
       return showMsg("Please fill in all fields.", true);
     }
 
+    // Reject clearly invalid addresses before asking the backend to send an invite.
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(newAdminEmail)) {
@@ -144,6 +148,7 @@ export default function Settings() {
   };
 
   const handleRemoveAdmin = async (id: string) => {
+    // Removal is destructive, so require an explicit in-app confirmation.
     const confirmed = await confirm({
       title: "Remove administrator?",
       message: "This administrator will immediately lose access to the dashboard. This action cannot be undone.",

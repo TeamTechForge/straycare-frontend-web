@@ -1,9 +1,10 @@
 import "./Sidebar.css";
 import { NavLink, useLocation } from "react-router-dom";
-import logo from '../assets/LogoNew.png';
+import logo from "../assets/LogoNew.png";
 
 export default function Sidebar() {
   const location = useLocation();
+  // Parent navigation stays highlighted while viewing one of its nested pages.
   const isUsersSection = location.pathname.startsWith("/users");
   const isReportsSection = location.pathname.startsWith("/reports");
 

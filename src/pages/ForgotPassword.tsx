@@ -2,7 +2,7 @@ import "../auth/Login.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
-import logo from '../assets/LogoNew.png';
+import logo from "../assets/LogoNew.png";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState<string>("");
@@ -23,11 +23,12 @@ export default function ForgotPassword() {
     try {
       setLoading(true);
 
+      // The backend emails a short-lived reset code without exposing account data.
       const res = await api.post("/api/admin/forgot-password", { email });
 
       setMessage(res.data.message + " Redirecting...");
       setError("");
-      
+
       setTimeout(() => {
         navigate("/reset-password");
       }, 1500);
@@ -70,9 +71,12 @@ export default function ForgotPassword() {
             </button>
           </form>
 
-          <div className="form-footer" style={{ justifyContent: "center", marginTop: "12px" }}>
-            
-              <a href="#"
+          <div
+            className="form-footer"
+            style={{ justifyContent: "center", marginTop: "12px" }}
+          >
+            <a
+              href="#"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/login");

@@ -31,13 +31,17 @@ export default function Rescues() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
-  const paginatedRescues = filteredRescues.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const paginatedRescues = filteredRescues.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   useEffect(() => {
     fetchRescues();
   }, []);
 
   useEffect(() => {
+    // Recalculate the visible table whenever a filter or source record changes.
     let filtered = rescues;
 
     if (statusFilter) {
@@ -73,6 +77,7 @@ export default function Rescues() {
     try {
       const response = await api.get("/api/rescues/all");
 
+      // Recent rescue cases are shown first for faster operational review.
       const newestFirst = [...response.data].sort(
         (a: Rescue, b: Rescue) =>
           new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()

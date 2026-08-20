@@ -21,6 +21,7 @@ export function ConfirmationProvider({ children }: { children: ReactNode }) {
   const [pending, setPending] = useState<PendingConfirmation | null>(null);
   const resolverRef = useRef<((confirmed: boolean) => void) | null>(null);
 
+  // Pages await this promise so actions continue only after the admin responds.
   const confirm = (options: ConfirmationOptions) =>
     new Promise<boolean>((resolve) => {
       resolverRef.current = resolve;
@@ -37,7 +38,11 @@ export function ConfirmationProvider({ children }: { children: ReactNode }) {
     <ConfirmationContext.Provider value={confirm}>
       {children}
       {pending && (
-        <div className="confirmation-backdrop" role="presentation" onMouseDown={() => finish(false)}>
+        <div
+          className="confirmation-backdrop"
+          role="presentation"
+          onMouseDown={() => finish(false)}
+        >
           <div
             className="confirmation-dialog"
             role="alertdialog"
@@ -49,7 +54,12 @@ export function ConfirmationProvider({ children }: { children: ReactNode }) {
             <h2 id="confirmation-title">{pending.title || "Confirm action"}</h2>
             <p>{pending.message}</p>
             <div className="confirmation-actions">
-              <button className="confirmation-cancel" onClick={() => finish(false)}>Cancel</button>
+              <button
+                className="confirmation-cancel"
+                onClick={() => finish(false)}
+              >
+                Cancel
+              </button>
               <button
                 className={`confirmation-submit ${pending.tone || "warning"}`}
                 onClick={() => finish(true)}
@@ -66,6 +76,8 @@ export function ConfirmationProvider({ children }: { children: ReactNode }) {
 
 export function useConfirmation() {
   const confirm = useContext(ConfirmationContext);
-  if (!confirm) throw new Error("useConfirmation must be used within ConfirmationProvider");
+  if (!confirm) {
+    throw new Error("useConfirmation must be used within ConfirmationProvider");
+  }
   return confirm;
 }

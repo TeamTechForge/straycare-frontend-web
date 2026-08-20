@@ -20,7 +20,7 @@ import {
 } from "recharts";
 import "./Analytics.css";
 
-
+// A shared palette keeps chart categories visually consistent across sections.
 const CATEGORY_COLORS = [
   "#D97706",
   "#44546B",
@@ -81,6 +81,7 @@ export default function Analytics() {
 
   const fetchData = async () => {
     try {
+      // Load independent dashboard datasets together to reduce the wait time.
       const [donRes, userRes, rescueRes] = await Promise.all([
         api.get("/api/donations"),
         api.get("/api/users/all").catch(() => ({ data: [] })),
@@ -98,6 +99,7 @@ export default function Analytics() {
   };
 
   const donationsByMonth = (): MonthDonation[] => {
+    // Recharts expects summarized rows rather than raw donation records.
     const map: Record<string, MonthDonation> = {};
 
     donations.forEach((d) => {
@@ -130,7 +132,6 @@ export default function Analytics() {
       if (d.status === "SUCCESS") {
         let category = d.category || "General";
 
-    
         if (category === "Shelter") category = "Support Shelter";
         if (category === "Vet Clinic") category = "Support Vet Clinic";
 
