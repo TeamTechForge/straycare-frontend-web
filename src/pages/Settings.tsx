@@ -87,8 +87,8 @@ export default function Settings() {
       return showMsg("New passwords do not match.", true);
     }
 
-    if (newPassword.length < 6) {
-      return showMsg("Password must be at least 6 characters.", true);
+    if (!/^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,15}$/.test(newPassword)) {
+      return showMsg("Must be 8-15 chars, with at least 1 uppercase and 1 symbol.", true);
     }
 
     try {

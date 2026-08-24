@@ -39,8 +39,8 @@ export default function ResetPassword() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (!/^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,15}$/.test(newPassword)) {
+      setError("Must be 8-15 chars, with at least 1 uppercase and 1 symbol.");
       return;
     }
 
