@@ -39,9 +39,31 @@ export default function Login() {
   ) => {
     e.preventDefault();
 
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail && !password) {
+      setError("Please enter your email address and password.");
+      return;
+    }
+
+    if (!normalizedEmail) {
+      setError("Please enter your email address.");
+      return;
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!password) {
+      setError("Please enter your password.");
+      return;
+    }
+
     try {
       const res = await api.post("/api/admin/login", {
-        email,
+        email: normalizedEmail,
         password,
       });
 
@@ -111,10 +133,13 @@ export default function Login() {
               <label>Email</label>
 
               <input
-                type="text"
+                type="email"
                 placeholder="admin@straycare.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
               />
 
             </div>
@@ -130,7 +155,10 @@ export default function Login() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError("");
+                  }}
                 />
 
 

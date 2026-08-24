@@ -115,20 +115,31 @@ export default function Settings() {
   ) => {
     e.preventDefault();
 
-    if (!newAdminName || !newAdminEmail) {
-      return showMsg("Please fill in all fields.", true);
+    const normalizedName = newAdminName.trim();
+    const normalizedEmail = newAdminEmail.trim();
+
+    if (!normalizedName && !normalizedEmail) {
+      return showMsg("Please enter the administrator's username and email address.", true);
+    }
+
+    if (!normalizedName) {
+      return showMsg("Please enter the administrator's username.", true);
+    }
+
+    if (!normalizedEmail) {
+      return showMsg("Please enter the administrator's email address.", true);
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!emailRegex.test(newAdminEmail)) {
+    if (!emailRegex.test(normalizedEmail)) {
       return showMsg("Please enter a valid email address.", true);
     }
 
     try {
       await api.post("/api/admins/invite", {
-        username: newAdminName,
-        email: newAdminEmail,
+        username: normalizedName,
+        email: normalizedEmail,
       });
 
       showMsg("Invitation sent successfully!");

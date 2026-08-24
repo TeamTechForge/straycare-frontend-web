@@ -15,15 +15,22 @@ export default function ForgotPassword() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!email) {
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail) {
       setError("Please enter your email address.");
+      return;
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
+      setError("Please enter a valid email address.");
       return;
     }
 
     try {
       setLoading(true);
 
-      const res = await api.post("/api/admin/forgot-password", { email });
+      const res = await api.post("/api/admin/forgot-password", { email: normalizedEmail });
 
       setMessage(res.data.message + " Redirecting...");
       setError("");
@@ -61,7 +68,10 @@ export default function ForgotPassword() {
                 type="email"
                 placeholder="Enter your email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
               />
             </div>
 
