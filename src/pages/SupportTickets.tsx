@@ -84,7 +84,10 @@ export default function SupportTickets() {
 
   const handleSendReply = async (id: string) => {
     const reply = replyDrafts[id];
-    if (!reply || !reply.trim()) return;
+    if (!reply || !reply.trim()) {
+      setFeedback({ type: "error", message: "Please enter a reply before sending." });
+      return;
+    }
 
     setUpdatingId(id);
     try {

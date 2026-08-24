@@ -29,8 +29,13 @@ export default function ResetPassword() {
       return;
     }
 
+    if (!isInvite && !/^\d{6}$/.test(resetCode.trim())) {
+      setError("Please enter a valid 6-digit reset code.");
+      return;
+    }
+
     if (!newPassword || !confirmPassword) {
-      setError("Please fill in all fields.");
+      setError("Please enter and confirm your new password.");
       return;
     }
 
@@ -47,7 +52,7 @@ export default function ResetPassword() {
     try {
       setLoading(true);
 
-      const payloadToken = isInvite ? token : resetCode;
+      const payloadToken = isInvite ? token : resetCode.trim();
 
       const res = isInvite
         ? await api.post("/api/admins/accept-invite", { token: payloadToken, newPassword })
@@ -116,7 +121,11 @@ export default function ResetPassword() {
                   type="text"
                   placeholder="Enter 6-digit code"
                   value={resetCode}
-                  onChange={(e) => setResetCode(e.target.value)}
+                  onChange={(e) => {
+                    setResetCode(e.target.value.replace(/\D/g, ""));
+                    setError("");
+                  }}
+                  inputMode="numeric"
                   maxLength={6}
                 />
               </div>
@@ -129,7 +138,10 @@ export default function ResetPassword() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter new password"
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                    setError("");
+                  }}
                 />
                 <button
                   type="button"
@@ -158,7 +170,10 @@ export default function ResetPassword() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Confirm new password"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    setError("");
+                  }}
                 />
               </div>
             </div>
